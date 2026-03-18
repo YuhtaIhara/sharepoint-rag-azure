@@ -10,6 +10,7 @@
 | 0.4 | 2026-03-15 | 構築担当者 | リージョンを Japan East に変更。命名規則を jpe に統一。LLM を GPT-4o-mini に変更 |
 | 0.5 | 2026-03-18 | 構築担当者 | リージョン差異反映（OpenAI→East US 2、App Service→East Asia）。RBAC #10 設定済に更新 |
 | 0.6 | 2026-03-18 | 構築担当者 | Functions ホスト名を実績値に更新（新 Azure 命名形式） |
+| 0.7 | 2026-03-18 | 構築担当者 | 命名規則テーブル更新（OpenAI→eastus2、App Service→East Asia 注記追加）。DI 未使用注記追加。コスト試算 DI $0 反映 |
 
 ---
 
@@ -37,15 +38,15 @@
 |---|---------|---------|-----------|---------|
 | 0 | Resource Group | `rg` | `rg-sprag-poc-jpe` | — |
 | 1 | Entra ID アプリ | — | `app-sprag-poc` | — |
-| 2 | Azure OpenAI | `oai` | `oai-sprag-poc-jpe` | 英数字・ハイフン |
-| 3 | Document Intelligence | `di` | `di-sprag-poc-jpe` | 英数字・ハイフン |
+| 2 | Azure OpenAI | `oai` | `oai-sprag-poc-eastus2` | 英数字・ハイフン。※JE 非対応のため East US 2 に作成。命名規則のリージョン部が `eastus2` に変更 |
+| 3 | Document Intelligence | `di` | `di-sprag-poc-jpe` | 英数字・ハイフン。構築済みだが現在のスキルセットでは未使用 |
 | 4 | Storage Account | `st` | `stspragpocjpe` | 小文字+数字のみ、3-24文字、グローバル一意 |
 | 5 | AI Search | `srch` | `srch-sprag-poc-jpe` | 小文字+数字+ハイフン、グローバル一意 |
 | 6 | Cosmos DB | `cosmos` | `cosmos-sprag-poc-jpe` | 小文字+数字+ハイフン、グローバル一意 |
 | 7 | Key Vault | `kv` | `kv-sprag-poc-jpe` | 英数字+ハイフン、グローバル一意 |
 | 8 | Application Insights | `appi` | `appi-sprag-poc-jpe` | — |
 | 9 | Azure Functions | `func` | `func-sprag-poc-jpe` | グローバル一意 |
-| 10 | App Service | `app` | `app-sprag-poc-jpe` | グローバル一意 |
+| 10 | App Service | `app` | `app-sprag-poc-jpe` | グローバル一意。※実リージョンは East Asia（JE B1 クォータ不足のため）。名前の `jpe` は命名規約上の名残 |
 | 11 | Functions 用 Storage | `st` | `stfuncspragpoc` | 小文字+数字のみ |
 
 ### タギング戦略
@@ -73,7 +74,7 @@
 | 0 | `rg-sprag-poc-jpe` | Resource Group | — | Japan East / サブスクリプション: Azure サブスクリプション 1 (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) | 全リソースの入れ物 | — | — |
 | 1 | `app-sprag-poc` | Entra ID アプリ登録 | — | シングルテナント / Sites.Read.All, Files.Read.All / シークレット6ヶ月 | Graph API 認証 | — | — |
 | 2 | `oai-sprag-poc-eastus2` | Azure AI Foundry (OpenAI) | S0 | GPT-4o-mini: 30K TPM / text-embedding-3-large: 120K TPM / **East US 2** | 回答生成 + 埋め込み | JE 非対応のため East US 2 | — |
-| 3 | `di-sprag-poc-jpe` | Document Intelligence | S0 | — | PDF/Office 構造抽出 | Free は月500ページ制限。S0 で従量課金 | — |
+| 3 | `di-sprag-poc-jpe` | Document Intelligence | S0 | — | PDF/Office 構造抽出 | Free は月500ページ制限。S0 で従量課金。構築済み。現在のスキルセットでは未使用（SplitSkill を採用）。精度向上時に活用予定 | — |
 | 4 | `stspragpocjpe` | Storage Account | Standard LRS | コンテナ: `sharepoint-documents` / パブリックアクセス無効 / 論理削除有効 | SP 文書格納 | PoC は冗長性不要。LRS が最安 | — |
 | 5 | `srch-sprag-poc-jpe` | AI Search | **S1** | レプリカ: 1 / パーティション: 1 / セマンティックランカー: Free / マネージド ID: ON | 検索エンジン | ベクトル検索は S1 以上必須。Basic 不可 | #2, #3, #4 |
 | 6 | `cosmos-sprag-poc-jpe` | Cosmos DB | サーバーレス (NoSQL) | DB: `ChatDB` / コンテナ: `conversations` / PK: `/sessionId` | 会話履歴 | 低頻度アクセスのためサーバーレスが最安 | — |
@@ -133,23 +134,23 @@
 | 2 | **App Service** | B1 Linux | 固定 | **$12.41** | 常時起動の最小プラン |
 | 3 | **Azure OpenAI (GPT-4o-mini)** | Standard | 従量 | **〜$1** | 入力$0.15/1M tokens, 出力$0.60/1M tokens。PoC利用では微少 |
 | 4 | **Azure OpenAI (embedding)** | Standard | 従量 | **〜$1** | $0.13/1M tokens。100件インデックス構築+クエリ |
-| 5 | **Document Intelligence** | S0 | 従量 | **〜$5** | Layout: $10/1,000ページ。100件×平均5ページ=500ページ |
+| 5 | **Document Intelligence** | S0 | 従量 | **$0** | 構築済みだが現在未使用（SplitSkill を採用）。従量課金のため使用しなければ $0。活用時は Layout: $10/1,000ページ |
 | 6 | **Cosmos DB** | サーバーレス | 従量 | **〜$1** | $0.25/1M RU + $0.25/GB。PoC利用では微少 |
 | 7 | **Functions** | 従量課金 | 従量 | **$0** | 無料枠内（月100万回実行 + 400,000 GB-s） |
 | 8 | **Blob Storage** | Standard LRS | 従量 | **〜$0.01** | $0.0184/GB。100件で数十MB程度 |
 | 9 | **Key Vault** | Standard | 従量 | **〜$0.01** | $0.03/10,000操作 |
 | 10 | **Application Insights** | — | 従量 | **$0** | 無料枠 5GB/月内 |
-| | | | **合計** | **約 $265/月** | |
-| | | | **参考: 日本円** | **約 39,750円/月** | |
+| | | | **合計** | **約 $260/月** | |
+| | | | **参考: 日本円** | **約 39,000円/月** | |
 
 ### PoC 期間中の想定コスト
 
 | 期間 | 想定コスト |
 |------|-----------|
 | 3日 | 約 $26（AI Search の日割り $24 + 従量課金 $2） |
-| 1週間 | 約 $62 |
-| 2週間 | 約 $124 |
-| 1ヶ月 | 約 $265 |
+| 1週間 | 約 $61 |
+| 2週間 | 約 $121 |
+| 1ヶ月 | 約 $260 |
 
 > AI Search S1 は時間課金（$0.336/時）。PoC 終了後にリソース削除で課金停止。
 >

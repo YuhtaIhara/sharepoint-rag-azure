@@ -34,6 +34,10 @@
       ]
     }
   ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "key": "${DI_KEY}"
+  },
   "indexProjections": {
     "selectors": [
       {

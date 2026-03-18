@@ -94,40 +94,13 @@ sharepoint-rag-azure/
 
 ### デプロイ
 
-> 詳細な手順: [構築手順書](docs/10-build-guide.md)
+1. Azure リソース作成（12 リソース） → [構築手順書](docs/10-build-guide.md)
+2. RBAC 設定（10 件）+ Key Vault シークレット登録（9 件）
+3. SharePoint フォルダ権限の ACL テスト用設定
+4. アプリケーションデプロイ（Functions + webapp）
+5. ACL テスト実施 → [試験仕様書](docs/11-test-spec.md)
 
-1. Azure リソース作成（Resource Group、OpenAI、Storage、Cosmos DB、Key Vault、AI Search、App Service）
-2. RBAC 設定（10 件のロール割り当て）
-3. Key Vault シークレット登録（9 件）
-4. SharePoint フォルダ権限の ACL テスト用設定
-5. インジェストパイプライン実行（Graph API → Blob → AI Search インデックス）
-6. ACL テスト実施（[試験仕様書](docs/11-test-spec.md) に準拠）
-
-```bash
-# Functions デプロイ
-cd functions
-zip -r ../functions.zip .
-az functionapp deployment source config-zip \
-  -g <resource-group> -n <function-app-name> \
-  --src functions.zip
-
-# webapp デプロイ
-cd webapp
-npm install && npm run build
-zip -r ../webapp.zip .
-az webapp deployment source config-zip \
-  -g <resource-group> -n <app-service-name> \
-  --src webapp.zip
-```
-
-webapp 環境変数:
-
-| 変数名 | 値 |
-|--------|-----|
-| `BACKEND_API_URL` | Functions エンドポイント URL |
-| `FUNCTIONS_KEY` | Functions デフォルトキー |
-
-Entra ID 認証: App Service →「認証」→ ID プロバイダー「Microsoft」→ アプリ登録を選択。Entra ID アプリ側でリダイレクト URI と ID トークンを有効化する。
+詳細な構築・デプロイ手順は [運用手順書](docs/12-operations-runbook.md) を参照。
 
 ### 使い方
 
@@ -159,7 +132,7 @@ python update_index_metadata.py
 | 制限 | 影響 | 改善策 |
 |------|------|--------|
 | Functions Consumption プランのコールドスタート | 初回リクエストが 10-30秒かかる場合がある | webapp 側でリトライ実装済み。Premium プランで解消可能 |
-| Excel/PDF のチャンク品質 | 構造データ（フリガナ等）がノイズとして混入 | Document Intelligence の活用（リソースは構築済み） |
+| Excel/PDF のチャンク品質 | 構造データ（フリガナ等）がノイズとして混入 | Document Intelligence の活用（リソースは構築済み、現在未使用） |
 | GPT-4o-mini の回答品質 | 要約・統合の精度に限界 | GPT-4o への切替（コスト ~10倍、PoC 規模では月 ~$10） |
 | ACL はメールアドレスベース | セキュリティグループ非対応 | Graph API でグループメンバーシップ取得に拡張可能 |
 | 02_人事労務 は `*` ワイルドカード | 継承権限のフォルダは全員アクセス可として扱う | SP 権限 API の応答仕様による制約 |
@@ -172,8 +145,8 @@ python update_index_metadata.py
 | App Service B1 | ~$13 |
 | Azure OpenAI | ~$2（従量課金） |
 | Cosmos DB Serverless | ~$1 |
-| その他 | ~$5 |
-| **合計** | **~$266/月** |
+| その他 | ~$1 |
+| **合計** | **~$262/月** |
 
 ## ライセンス
 

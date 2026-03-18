@@ -9,6 +9,7 @@
 | 0.3 | 2026-03-16 | 構築担当者 | 管理者同意反映。SP フォルダ権限設定手順（§4.12）追加 |
 | 0.4 | 2026-03-18 | 構築担当者 | リージョン差異反映（OpenAI→East US 2、App Service→East Asia） |
 | 0.5 | 2026-03-18 | 構築担当者 | §4.14 アプリケーションデプロイ手順を追加 |
+| 0.6 | 2026-03-18 | 構築担当者 | RBAC テーブルの OpenAI リソース名を eastus2 に修正。App Service リージョンを East Asia に修正 |
 
 ---
 
@@ -99,7 +100,7 @@
 | 順   | 操作                                                                                                          | 期待結果                                             | 所要時間 |
 | --- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---- |
 | 1   | ポータル上部検索 →「Azure OpenAI」→「作成」                                                                               | 作成画面表示                                           | —    |
-| 2   | 基本タブ: サブスクリプション / RG: `rg-sprag-poc-jpe` / リージョン: Japan East / 名前: `oai-sprag-poc-jpe` / 価格レベル: Standard S0 | —                                                | —    |
+| 2   | 基本タブ: サブスクリプション / RG: `rg-sprag-poc-jpe` / リージョン: **East US 2** / 名前: `oai-sprag-poc-eastus2` / 価格レベル: Standard S0 | —                                                | —    |
 | 3   | ネットワークタブ:「すべてのネットワーク」                                                                                       | —                                                | —    |
 | 4   | タグタブ: 共通タグ5個                                                                                                | —                                                | —    |
 | 5   | 「確認と送信」→「作成」                                                                                                | デプロイ完了                                           | 3分   |
@@ -272,7 +273,7 @@
 | 順 | 操作 | 期待結果 | 所要時間 |
 |----|------|---------|---------|
 | 1 | ポータル上部検索 →「App Service」→「作成」→「Web アプリ」 | 作成画面表示 | — |
-| 2 | 基本タブ: サブスクリプション / RG: `rg-sprag-poc-jpe` / 名前: `app-sprag-poc-jpe` / ランタイム: Node.js 22 LTS / OS: Linux / リージョン: Japan East | — | — |
+| 2 | 基本タブ: サブスクリプション / RG: `rg-sprag-poc-jpe` / 名前: `app-sprag-poc-jpe` / ランタイム: Node.js 22 LTS / OS: Linux / リージョン: **East Asia** | — | — |
 | 3 | 価格プラン:「新規作成」→ SKU: **B1** (Basic) | — | — |
 | 4 | タグタブ: 共通タグ5個 | — | — |
 | 5 | 「確認と作成」→「作成」 | デプロイ完了 | 3分 |
@@ -291,10 +292,10 @@
 | # | 操作 | 対象リソース | 付与先 | ロール | 確認欄 |
 |---|------|------------|--------|--------|--------|
 | 1 | Storage (#4) → IAM → ロール割り当ての追加 | `stspragpocjpe` | AI Search MI (#5) | Storage Blob Data Reader | ☐ |
-| 2 | Azure OpenAI (#2) → IAM → ロール割り当ての追加 | `oai-sprag-poc-jpe` | AI Search MI (#5) | Cognitive Services OpenAI User | ☐ |
+| 2 | Azure OpenAI (#2) → IAM → ロール割り当ての追加 | `oai-sprag-poc-eastus2` | AI Search MI (#5) | Cognitive Services OpenAI User | ☐ |
 | 3 | Key Vault (#7) → IAM → ロール割り当ての追加 | `kv-sprag-poc-jpe` | Functions MI (#9) | Key Vault Secrets User | ☐ |
 | 4 | Storage (#4) → IAM → ロール割り当ての追加 | `stspragpocjpe` | Functions MI (#9) | Storage Blob Data Contributor | ☐ |
-| 5 | Azure OpenAI (#2) → IAM → ロール割り当ての追加 | `oai-sprag-poc-jpe` | Functions MI (#9) | Cognitive Services OpenAI User | ☐ |
+| 5 | Azure OpenAI (#2) → IAM → ロール割り当ての追加 | `oai-sprag-poc-eastus2` | Functions MI (#9) | Cognitive Services OpenAI User | ☐ |
 | 6 | Key Vault (#7) → IAM → ロール割り当ての追加 | `kv-sprag-poc-jpe` | App Service MI (#10) | Key Vault Secrets User | ☐ |
 | 7 | AI Search (#5) → IAM → ロール割り当ての追加 | `srch-sprag-poc-jpe` | 自分自身 | Search Service Contributor | ☐ |
 | 8 | AI Search (#5) → IAM → ロール割り当ての追加 | `srch-sprag-poc-jpe` | 自分自身 | Search Index Data Contributor | ☐ |

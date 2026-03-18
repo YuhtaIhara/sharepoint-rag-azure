@@ -7,6 +7,7 @@
 | 0.1 | 2026-03-15 | 構築担当者 | 初版作成。RG・Entra ID アプリは実績値、その他は設計値 |
 | 0.2 | 2026-03-18 | 構築担当者 | リージョン変更反映（OpenAI→East US 2、App Service→East Asia）。Summary を実績値に更新。oai-sprag-poc-jpe 削除記録 |
 | 0.3 | 2026-03-18 | 構築担当者 | デプロイ実績反映。RBAC 全件設定済。KV シークレット全件登録済。Functions/App Service ホスト名・アプリ設定を実績値に更新 |
+| 0.4 | 2026-03-18 | 構築担当者 | スキルセット構成を実績値に更新（SplitSkill + AzureOpenAIEmbeddingSkill）。DI 未使用注記追加 |
 
 ---
 
@@ -17,7 +18,7 @@
 | 0   | Resource Group        | Resource Group        | `rg-sprag-poc-jpe`     | 完了  | 2026-03-14 | 担当者A |         |
 | 1   | Entra ID App          | Entra ID アプリ登録        | `app-sprag-poc`        | 完了  | 2026-03-16 | 構築担当者 |         |
 | 2   | Azure OpenAI          | Azure AI Foundry      | `oai-sprag-poc-eastus2` | 完了  | 2026-03-16 | 構築担当者 | ※設計時 `oai-sprag-poc-jpe` (JE) → JE非対応のため East US 2 に変更。旧リソース削除済 |
-| 3   | Document Intelligence | Document Intelligence | `di-sprag-poc-jpe`     | 完了  | 2026-03-16 | 構築担当者 |         |
+| 3   | Document Intelligence | Document Intelligence | `di-sprag-poc-jpe`     | 完了  | 2026-03-16 | 構築担当者 | 構築済み。現在のスキルセットでは未使用（SplitSkill を採用） |
 | 4   | Storage Account       | Storage Account       | `stspragpocjpe`        | 完了  | 2026-03-16 | 構築担当者 |         |
 | 5   | AI Search             | AI Search             | `srch-sprag-poc-jpe`   | 完了  | 2026-03-18 | 構築担当者 | 課金リソース  |
 | 6   | Cosmos DB             | Cosmos DB             | `cosmos-sprag-poc-jpe` | 完了  | 2026-03-16 | 構築担当者 |         |
@@ -163,6 +164,7 @@
 | API キー (KEY 1) | `***REDACTED***` | AI Search スキルセットから参照 |
 
 > Document Intelligence のキーは Key Vault ではなく AI Search スキルセットに直接設定する。
+> **注**: 現在のスキルセットでは Document Intelligence は未使用（SplitSkill + AzureOpenAIEmbeddingSkill の2スキル構成）。精度向上時に活用予定。
 
 ---
 
@@ -289,9 +291,9 @@
 | 項目 | 値 |
 |------|-----|
 | スキルセット名 | `sprag-skillset` |
-| スキル 1 | Document Intelligence Layout（構造抽出・Markdown 変換） |
-| スキル 2 | テキスト分割（見出し単位、h3 まで） |
-| スキル 3 | Azure OpenAI Embedding（text-embedding-3-large） |
+| スキル 1 | SplitSkill（テキスト分割: 2000文字、オーバーラップ200） |
+| スキル 2 | AzureOpenAIEmbeddingSkill（text-embedding-3-large） |
+| 備考 | Document Intelligence (`di-sprag-poc-jpe`) は構築済みだが現在のスキルセットでは未使用。精度向上時に活用予定 |
 
 ### インデクサー
 

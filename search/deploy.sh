@@ -6,6 +6,7 @@
 #   SEARCH_ENDPOINT  - AI Search エンドポイント (例: https://srch-sprag-poc-jpe.search.windows.net)
 #   SEARCH_API_KEY   - AI Search 管理キー
 #   AZURE_OPENAI_API_KEY - OpenAI API キー (skillset で使用)
+#   DI_KEY           - Document Intelligence キー (skillset cognitiveServices で使用)
 #   SUBSCRIPTION_ID  - Azure サブスクリプション ID (datasource で使用)
 
 set -euo pipefail
@@ -15,6 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 : "${SEARCH_ENDPOINT:?SEARCH_ENDPOINT is required}"
 : "${SEARCH_API_KEY:?SEARCH_API_KEY is required}"
+: "${DI_KEY:?DI_KEY is required}"
 
 header="api-key: ${SEARCH_API_KEY}"
 ct="Content-Type: application/json"

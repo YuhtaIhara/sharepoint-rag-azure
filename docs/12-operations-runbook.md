@@ -54,7 +54,7 @@
 | Azure Functions | `func-sprag-poc-jpe` | `https://func-sprag-poc-jpe-xxxxxxxxxx.japaneast-01.azurewebsites.net` | Japan East |
 | App Service | `app-sprag-poc-jpe` | `https://app-sprag-poc-jpe.azurewebsites.net` | East Asia |
 | Storage Account (Functions用) | `stfuncspragpoc` | — | Japan East |
-| Document Intelligence | `di-sprag-poc-jpe` | `https://di-sprag-poc-jpe.cognitiveservices.azure.com/` | Japan East |
+| Document Intelligence | `di-sprag-poc-jpe` | `https://di-sprag-poc-jpe.cognitiveservices.azure.com/` | Japan East（構築済み・現在未使用） |
 | Entra ID アプリ | `app-sprag-poc` | — | — |
 
 > **注意**: Functions のホスト名は新しい Azure 命名形式 `{name}-{hash}.{region}-01.azurewebsites.net` が適用される。リソース作成時にハッシュが自動付与されるため、実際の URL は Azure ポータルで確認すること。
@@ -87,7 +87,7 @@
 1. Resource Group (`rg-sprag-poc-jpe`)
 2. Entra ID アプリ登録 (`app-sprag-poc`)
 3. Azure OpenAI + モデルデプロイ (`gpt-4o-mini`, `text-embedding-3-large`)
-4. Document Intelligence (`di-sprag-poc-jpe`)
+4. Document Intelligence (`di-sprag-poc-jpe`) — 構築済み・現在のスキルセットでは未使用
 5. Storage Account (`stspragpocjpe`) + コンテナ `sharepoint-documents`
 6. AI Search (`srch-sprag-poc-jpe`) — **S1 課金リソース $245.28/月**
 7. Cosmos DB (`cosmos-sprag-poc-jpe`) + DB `ChatDB` + コンテナ `conversations`
@@ -659,7 +659,7 @@ python update_index_metadata.py
 | # | 改善 | 現状 | 効果 | コスト | 工数 |
 |---|------|------|------|--------|------|
 | 1 | GPT-4o-mini → GPT-4o | 回答品質に限界（要約・統合の精度） | 回答品質向上 | ~$10/月追加 | 設定変更のみ |
-| 2 | Document Intelligence 活用 | テキスト抽出は AI Search 標準のみ | Excel/PDF のチャンク品質向上 | ~$5 (初回のみ) | スキルセット修正 |
+| 2 | Document Intelligence 活用 | SplitSkill による固定長分割（リソースは構築済み・未使用） | Excel/PDF のチャンク品質向上 | ~$5 (初回のみ) | スキルセット修正 |
 | 3 | チャンクサイズ 2000→1000 | 2000 文字 / 200 文字オーバーラップ | 検索精度向上（細粒度チャンク） | 無料（再インデックス） | skillset.json 修正 + 再デプロイ |
 | 4 | セキュリティグループ対応 | ACL はメールアドレスベース | Entra ID セキュリティグループでのアクセス制御 | 開発工数 | Graph API でグループメンバーシップ取得に拡張 |
 | 5 | Functions Premium プラン | Consumption (コールドスタートあり) | コールドスタート解消 | ~$150/月追加 | SKU 変更 |
