@@ -1,6 +1,6 @@
 {
   "name": "sprag-skillset",
-  "description": "SP RAG PoC: テキスト分割 → OpenAI Embedding",
+  "description": "SP RAG PoC: テキスト分割 → OpenAI Embedding（DI 統合は次フェーズ）",
   "skills": [
     {
       "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
@@ -34,10 +34,6 @@
       ]
     }
   ],
-  "cognitiveServices": {
-    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
-    "key": "${DI_KEY}"
-  },
   "indexProjections": {
     "selectors": [
       {
@@ -47,9 +43,7 @@
         "mappings": [
           {"name": "chunk", "source": "/document/chunks/*"},
           {"name": "text_vector", "source": "/document/chunks/*/text_vector"},
-          {"name": "title", "source": "/document/metadata_storage_name"},
-          {"name": "category", "source": "/document/metadata_category"},
-          {"name": "source_url", "source": "/document/metadata_source_url"}
+          {"name": "title", "source": "/document/metadata_storage_name"}
         ]
       }
     ],
