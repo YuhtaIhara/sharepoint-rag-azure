@@ -1,0 +1,22 @@
+{
+  "name": "sprag-indexer",
+  "dataSourceName": "sprag-datasource",
+  "targetIndexName": "sprag-index",
+  "skillsetName": "sprag-skillset",
+  "schedule": null,
+  "parameters": {
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "default",
+      "imageAction": "none"
+    }
+  },
+  "fieldMappings": [
+    {
+      "sourceFieldName": "metadata_storage_path",
+      "targetFieldName": "chunk_id",
+      "mappingFunction": {"name": "fixedLengthEncode"}
+    }
+  ],
+  "outputFieldMappings": []
+}

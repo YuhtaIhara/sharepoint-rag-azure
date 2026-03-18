@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SharePoint RAG チャットボット</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>SharePoint RAG チャットボット <span class="badge">PoC</span></h1>
+    <button id="new-chat-btn" title="新しい会話">+ 新規</button>
+  </header>
+
+  <main id="chat-container">
+    <div id="messages"></div>
+  </main>
+
+  <footer>
+    <form id="chat-form" autocomplete="off">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="質問を入力してください..."
+        required
+      />
+      <button type="submit" id="send-btn">送信</button>
+    </form>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

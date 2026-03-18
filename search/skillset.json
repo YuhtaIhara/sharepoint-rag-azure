@@ -1,0 +1,56 @@
+{
+  "name": "sprag-skillset",
+  "description": "SP RAG PoC: テキスト分割 → OpenAI Embedding",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+      "name": "text-split",
+      "description": "テキストをチャンクに分割",
+      "context": "/document",
+      "textSplitMode": "pages",
+      "maximumPageLength": 2000,
+      "pageOverlapLength": 200,
+      "inputs": [
+        {"name": "text", "source": "/document/content"}
+      ],
+      "outputs": [
+        {"name": "textItems", "targetName": "chunks"}
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+      "name": "embedding",
+      "description": "text-embedding-3-large でベクトル生成",
+      "context": "/document/chunks/*",
+      "resourceUri": "https://oai-sprag-poc-eastus2.services.ai.azure.com/",
+      "deploymentId": "text-embedding-3-large",
+      "modelName": "text-embedding-3-large",
+      "apiKey": "${AZURE_OPENAI_API_KEY}",
+      "inputs": [
+        {"name": "text", "source": "/document/chunks/*"}
+      ],
+      "outputs": [
+        {"name": "embedding", "targetName": "text_vector"}
+      ]
+    }
+  ],
+  "indexProjections": {
+    "selectors": [
+      {
+        "targetIndexName": "sprag-index",
+        "parentKeyFieldName": "parent_id",
+        "sourceContext": "/document/chunks/*",
+        "mappings": [
+          {"name": "chunk", "source": "/document/chunks/*"},
+          {"name": "text_vector", "source": "/document/chunks/*/text_vector"},
+          {"name": "title", "source": "/document/metadata_storage_name"},
+          {"name": "category", "source": "/document/metadata_category"},
+          {"name": "source_url", "source": "/document/metadata_source_url"}
+        ]
+      }
+    ],
+    "parameters": {
+      "projectionMode": "skipIndexingParentDocuments"
+    }
+  }
+}

@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-18T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+
+  <!-- ============================================================ -->
+  <!-- Page 1: System Context Diagram (C4 Level 1)                  -->
+  <!-- ============================================================ -->
+  <diagram name="1. System Context (C4 L1)" id="ctx">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="ctx_title" value="SharePoint RAG チャットボット — System Context Diagram (C4 Level 1)" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;fontColor=#333333;fontFamily=Meiryo UI;resizable=0;" vertex="1" parent="1">
+          <mxGeometry x="184" y="20" width="800" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Person: PoC User -->
+        <mxCell id="ctx_user" value="&lt;b&gt;PoC ユーザー&lt;/b&gt;&lt;br&gt;[人物]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;SharePoint 上の社内文書に&lt;br&gt;ついて質問する従業員&lt;/font&gt;" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=12;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="484" y="100" width="200" height="180" as="geometry"/>
+        </mxCell>
+
+        <!-- System: RAG Chatbot -->
+        <mxCell id="ctx_system" value="&lt;b&gt;RAG チャットボット&lt;/b&gt;&lt;br&gt;[対象システム]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;SharePoint 文書を検索し&lt;br&gt;Azure OpenAI で回答を生成する&lt;br&gt;チャットボットシステム&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=12;arcSize=6;align=center;verticalAlign=middle;spacingTop=0;spacingBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="434" y="380" width="300" height="160" as="geometry"/>
+        </mxCell>
+
+        <!-- External: SharePoint Online -->
+        <mxCell id="ctx_sp" value="&lt;b&gt;SharePoint Online&lt;/b&gt;&lt;br&gt;[外部システム]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;社内文書を管理する&lt;br&gt;Microsoft 365 サービス&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#777777;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=12;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="100" y="400" width="220" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_sp_icon" value="" style="shape=image;image=img/lib/azure2/general/Module.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="108" y="405" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- External: Entra ID -->
+        <mxCell id="ctx_entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;[外部システム]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;認証・認可・SSO を提供する&lt;br&gt;ID プロバイダー&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#777777;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=12;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="849" y="400" width="220" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_entra_icon" value="" style="shape=image;image=img/lib/azure2/identity/Azure_Active_Directory.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="857" y="405" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows -->
+        <!-- User → System -->
+        <mxCell id="ctx_e1" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=11;fontColor=#555555;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="ctx_user" target="ctx_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_e1_l" value="質問する [HTTPS]" style="edgeLabel;html=1;fontSize=11;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="ctx_e1">
+          <mxGeometry x="-0.1" y="10" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- System → SharePoint -->
+        <mxCell id="ctx_e2" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=11;fontColor=#555555;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx_system" target="ctx_sp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_e2_l" value="文書を取得する [Graph API]" style="edgeLabel;html=1;fontSize=11;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="ctx_e2">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- System → Entra ID -->
+        <mxCell id="ctx_e3" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=11;fontColor=#555555;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx_system" target="ctx_entra">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_e3_l" value="認証する [OAuth 2.0 / OIDC]" style="edgeLabel;html=1;fontSize=11;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="ctx_e3">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- User → Entra ID (SSO) -->
+        <mxCell id="ctx_e4" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#707070;strokeWidth=1.5;dashed=1;fontFamily=Meiryo UI;fontSize=11;fontColor=#555555;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx_user" target="ctx_entra">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_e4_l" value="SSO ログインする [MSAL]" style="edgeLabel;html=1;fontSize=11;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="ctx_e4">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="ctx_leg_title" value="凡例" style="text;html=1;fontSize=12;fontStyle=1;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="100" y="610" width="60" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_leg1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="100" y="640" width="30" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_leg1t" value="人物" style="text;html=1;fontSize=11;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="140" y="640" width="80" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_leg2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="100" y="670" width="30" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_leg2t" value="対象システム" style="text;html=1;fontSize=11;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="140" y="670" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_leg3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#777777;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="100" y="700" width="30" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctx_leg3t" value="外部システム" style="text;html=1;fontSize=11;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="140" y="700" width="100" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- ============================================================ -->
+  <!-- Page 2: Container Diagram (C4 Level 2)                       -->
+  <!-- ============================================================ -->
+  <diagram name="2. Container (C4 L2)" id="cnt">
+    <mxGraphModel dx="1422" dy="920" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="900" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="cnt_title" value="SharePoint RAG チャットボット — Container Diagram (C4 Level 2)" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;fontColor=#333333;fontFamily=Meiryo UI;" vertex="1" parent="1">
+          <mxGeometry x="184" y="15" width="800" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="cnt_boundary" value="RAG チャットボット [対象システム境界]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#1168BD;strokeWidth=2;dashed=1;dashPattern=8 4;fontFamily=Meiryo UI;fontSize=13;fontColor=#1168BD;fontStyle=1;verticalAlign=top;align=left;spacingTop=8;spacingLeft=12;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="20" y="55" width="1129" height="810" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Person: PoC User (top-left) ====== -->
+        <mxCell id="cnt_user" value="&lt;b&gt;PoC ユーザー&lt;/b&gt;&lt;br&gt;[人物]" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;metaEdit=1;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="120" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: App Service (Node.js Proxy) ====== -->
+        <mxCell id="cnt_ui" value="&lt;b&gt;App Service&lt;/b&gt;&lt;br&gt;[Node.js プロキシ]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Entra ID SSO 認証&lt;br&gt;ユーザー email 抽出&lt;br&gt;Functions へプロキシ&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="230" y="90" width="180" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_ui_icon" value="" style="shape=image;image=img/lib/azure2/app_services/App_Services.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="238" y="95" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: Orchestrator ====== -->
+        <mxCell id="cnt_orch" value="&lt;b&gt;Orchestrator&lt;/b&gt;&lt;br&gt;[Azure Functions / Python]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;クエリ書き換え → 検索&lt;br&gt;→ プロンプト構築 → 回答生成&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="500" y="90" width="220" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_orch_icon" value="" style="shape=image;image=img/lib/azure2/compute/Function_Apps.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="508" y="95" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: LLM ====== -->
+        <mxCell id="cnt_llm" value="&lt;b&gt;LLM&lt;/b&gt;&lt;br&gt;[Azure OpenAI GPT-4o-mini]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;クエリ書き換え&lt;br&gt;回答生成&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="810" y="90" width="190" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_llm_icon" value="" style="shape=image;image=img/lib/azure2/ai_machine_learning/Azure_OpenAI.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="818" y="95" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: AI Search ====== -->
+        <mxCell id="cnt_search" value="&lt;b&gt;AI Search&lt;/b&gt;&lt;br&gt;[Azure AI Search S1]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;ハイブリッド検索&lt;br&gt;(キーワード + ベクトル)&lt;br&gt;+ セマンティックランカー&lt;br&gt;+ ACL フィルタ&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="500" y="300" width="220" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_search_icon" value="" style="shape=image;image=img/lib/azure2/ai_machine_learning/Cognitive_Services.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="508" y="305" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== ACL Yellow Note ====== -->
+        <mxCell id="cnt_acl_note" value="&lt;b&gt;ACL フィルタ&lt;/b&gt;&lt;br&gt;allowed_groups による&lt;br&gt;OData フィルタで&lt;br&gt;文書レベルのアクセス制御" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF3CD;strokeColor=#FFD700;fontFamily=Meiryo UI;fontSize=10;fontColor=#856404;align=left;spacingLeft=6;spacingTop=4;spacingRight=4;" vertex="1" parent="1">
+          <mxGeometry x="780" y="310" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_acl_edge" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#FFD700;strokeWidth=1.5;dashed=1;entryX=1;entryY=0.4;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cnt_acl_note" target="cnt_search">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Skillset: SplitSkill ====== -->
+        <mxCell id="cnt_split" value="&lt;b&gt;SplitSkill&lt;/b&gt;&lt;br&gt;[AI Search スキルセット]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;テキスト分割&lt;br&gt;2000文字 / 200 オーバーラップ&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="230" y="300" width="190" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_split_icon" value="" style="shape=image;image=img/lib/azure2/ai_machine_learning/Cognitive_Services.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="238" y="305" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Skillset: Embedding ====== -->
+        <mxCell id="cnt_embed" value="&lt;b&gt;Embedding&lt;/b&gt;&lt;br&gt;[AzureOpenAIEmbeddingSkill]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;text-embedding-3-large&lt;br&gt;3072 次元ベクトル生成&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="230" y="430" width="190" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_embed_icon" value="" style="shape=image;image=img/lib/azure2/ai_machine_learning/Azure_OpenAI.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="238" y="435" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: Blob Storage ====== -->
+        <mxCell id="cnt_blob" value="&lt;b&gt;Blob Storage&lt;/b&gt;&lt;br&gt;[Storage Account]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;sharepoint-documents コンテナ&lt;br&gt;メタデータ: ACL / category / source_url&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="500" y="510" width="220" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_blob_icon" value="" style="shape=image;image=img/lib/azure2/storage/Storage_Accounts.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="508" y="515" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: Cosmos DB ====== -->
+        <mxCell id="cnt_cosmos" value="&lt;b&gt;Cosmos DB&lt;/b&gt;&lt;br&gt;[Serverless]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;会話履歴の永続化&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;shape=mxgraph.flowchart.database;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="830" y="260" width="150" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_cosmos_icon" value="" style="shape=image;image=img/lib/azure2/databases/Azure_Cosmos_DB.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="838" y="265" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Script: sp_to_blob.py ====== -->
+        <mxCell id="cnt_sp2blob" value="&lt;b&gt;sp_to_blob.py&lt;/b&gt;&lt;br&gt;[スクリプト / Python]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Graph API で SP 文書取得&lt;br&gt;Blob にアップロード&lt;br&gt;(ACL メタデータ付き)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#5A9BD5;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="230" y="640" width="190" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Script: update_index_metadata.py ====== -->
+        <mxCell id="cnt_updidx" value="&lt;b&gt;update_index_metadata.py&lt;/b&gt;&lt;br&gt;[スクリプト / Python]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Blob メタデータを読み取り&lt;br&gt;インデックスに ACL を&lt;br&gt;merge 更新&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#5A9BD5;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="500" y="660" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: Key Vault ====== -->
+        <mxCell id="cnt_kv" value="&lt;b&gt;Key Vault&lt;/b&gt;&lt;br&gt;[Azure Key Vault]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;シークレット管理&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_kv_icon" value="" style="shape=image;image=img/lib/azure2/security/Key_Vaults.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="48" y="565" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Container: Application Insights ====== -->
+        <mxCell id="cnt_appi" value="&lt;b&gt;Application Insights&lt;/b&gt;&lt;br&gt;[監視]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;ログ・メトリクス・トレース&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="670" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_appi_icon" value="" style="shape=image;image=img/lib/azure2/devops/Application_Insights.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="48" y="675" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== External: SharePoint Online ====== -->
+        <mxCell id="cnt_sp" value="&lt;b&gt;SharePoint Online&lt;/b&gt;&lt;br&gt;[外部システム]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;社内文書管理&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#777777;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="790" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_sp_icon" value="" style="shape=image;image=img/lib/azure2/general/Module.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="48" y="795" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== External: Entra ID ====== -->
+        <mxCell id="cnt_entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;[外部システム]&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;SSO 認証プロバイダ&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#777777;fontColor=#FFFFFF;fontFamily=Meiryo UI;fontSize=11;arcSize=6;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="830" y="790" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_entra_icon" value="" style="shape=image;image=img/lib/azure2/identity/Azure_Active_Directory.svg;imageWidth=28;imageHeight=28;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="838" y="795" width="28" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ EDGES ============ -->
+
+        <!-- User → App Service -->
+        <mxCell id="cnt_e01" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;" edge="1" parent="1" source="cnt_user" target="cnt_ui">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e01_l" value="質問する [HTTPS]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e01">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- App Service → Orchestrator -->
+        <mxCell id="cnt_e02" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;" edge="1" parent="1" source="cnt_ui" target="cnt_orch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e02_l" value="プロキシする [REST API]&lt;br&gt;(email ヘッダ付与)" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e02">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Orchestrator → LLM -->
+        <mxCell id="cnt_e03" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;" edge="1" parent="1" source="cnt_orch" target="cnt_llm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e03_l" value="生成する [REST API]&lt;br&gt;(書き換え + 回答)" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e03">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Orchestrator → AI Search -->
+        <mxCell id="cnt_e04" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_orch" target="cnt_search">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e04_l" value="検索する [REST API]&lt;br&gt;(ハイブリッド + ACL フィルタ)" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e04">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Orchestrator → Cosmos DB -->
+        <mxCell id="cnt_e05" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_orch" target="cnt_cosmos">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e05_l" value="会話履歴を保存 [SDK]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e05">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- AI Search → Blob Storage (Indexer) -->
+        <mxCell id="cnt_e06" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_search" target="cnt_blob">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e06_l" value="インデクシングする [Blob Indexer]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e06">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- AI Search → SplitSkill (Skillset) -->
+        <mxCell id="cnt_e07" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=1.5;dashed=1;dashPattern=4 4;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0;exitY=0.35;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_search" target="cnt_split">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e07_l" value="スキルセット [SplitSkill]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e07">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- AI Search → Embedding (Skillset) -->
+        <mxCell id="cnt_e08" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=1.5;dashed=1;dashPattern=4 4;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0;exitY=0.7;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_search" target="cnt_embed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e08_l" value="ベクトル化する [EmbeddingSkill]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e08">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- sp_to_blob.py → Blob Storage -->
+        <mxCell id="cnt_e13" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_sp2blob" target="cnt_blob">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e13_l" value="アップロード [SDK]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e13">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- sp_to_blob.py → SharePoint -->
+        <mxCell id="cnt_e09" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0;exitY=0.7;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_sp2blob" target="cnt_sp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e09_l" value="文書取得 [Graph API]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e09">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- update_index_metadata.py → AI Search -->
+        <mxCell id="cnt_e14" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_updidx" target="cnt_blob">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e14_l" value="メタデータ読取 [SDK]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e14">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- update_index_metadata.py → AI Search (merge) -->
+        <mxCell id="cnt_e15" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0.8;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_updidx" target="cnt_search">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e15_l" value="ACL を merge 更新 [REST API]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e15">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- App Service → Entra ID -->
+        <mxCell id="cnt_e10" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#707070;strokeWidth=2;fontFamily=Meiryo UI;fontSize=10;fontColor=#555555;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="cnt_ui" target="cnt_entra">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="820"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnt_e10_l" value="認証する [Entra ID SSO]" style="edgeLabel;html=1;fontSize=10;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e10">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- All services → Key Vault (dashed) -->
+        <mxCell id="cnt_e11" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#AAAAAA;strokeWidth=1;dashed=1;dashPattern=3 3;fontFamily=Meiryo UI;fontSize=9;fontColor=#999999;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_orch" target="cnt_kv">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e11_l" value="参照する [HTTPS]" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#999999;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e11">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- All services → App Insights (dashed) -->
+        <mxCell id="cnt_e12" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#AAAAAA;strokeWidth=1;dashed=1;dashPattern=3 3;fontFamily=Meiryo UI;fontSize=9;fontColor=#999999;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnt_ui" target="cnt_appi">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_e12_l" value="テレメトリ送信する [SDK]" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#999999;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="cnt_e12">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="cnt_leg_title" value="凡例" style="text;html=1;fontSize=12;fontStyle=1;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="840" y="460" width="60" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#3C7FC0;" vertex="1" parent="1">
+          <mxGeometry x="840" y="490" width="25" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg1t" value="人物" style="text;html=1;fontSize=10;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="870" y="488" width="60" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;strokeColor=#0B4884;" vertex="1" parent="1">
+          <mxGeometry x="840" y="514" width="25" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg2t" value="コンテナ" style="text;html=1;fontSize=10;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="870" y="512" width="70" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg5" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#5A9BD5;" vertex="1" parent="1">
+          <mxGeometry x="840" y="538" width="25" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg5t" value="スクリプト（手動実行）" style="text;html=1;fontSize=10;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="870" y="536" width="150" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#777777;" vertex="1" parent="1">
+          <mxGeometry x="840" y="562" width="25" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg3t" value="外部システム" style="text;html=1;fontSize=10;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="870" y="560" width="90" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg4" value="―  ―" style="text;html=1;fontSize=10;fontColor=#707070;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="840" y="586" width="25" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnt_leg4t" value="スキルセット / 共通サービス" style="text;html=1;fontSize=10;fontColor=#333333;fontFamily=Meiryo UI;align=left;" vertex="1" parent="1">
+          <mxGeometry x="870" y="584" width="170" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- ============================================================ -->
+  <!-- Page 3: Deployment Diagram                                   -->
+  <!-- ============================================================ -->
+  <diagram name="3. Deployment" id="dep">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="dep_title" value="SharePoint RAG チャットボット — Deployment Diagram" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;fontColor=#333333;fontFamily=Meiryo UI;" vertex="1" parent="1">
+          <mxGeometry x="234" y="15" width="700" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- Azure Subscription -->
+        <mxCell id="dep_sub" value="&lt;b&gt;Azure Subscription&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F0FF;strokeColor=#0078D4;strokeWidth=2;fontFamily=Meiryo UI;fontSize=13;fontColor=#0078D4;fontStyle=0;verticalAlign=top;align=left;spacingTop=10;spacingLeft=15;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="1109" height="740" as="geometry"/>
+        </mxCell>
+
+        <!-- Resource Group -->
+        <mxCell id="dep_rg" value="&lt;b&gt;Resource Group:&lt;/b&gt; rg-sprag-poc-jpe &amp;nbsp;|&amp;nbsp; &lt;b&gt;Primary Region:&lt;/b&gt; Japan East &amp;nbsp;|&amp;nbsp; ※一部リソースは別リージョン（下記参照）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F6FF;strokeColor=#0078D4;strokeWidth=1.5;dashed=1;dashPattern=6 3;fontFamily=Meiryo UI;fontSize=12;fontColor=#0078D4;fontStyle=0;verticalAlign=top;align=left;spacingTop=10;spacingLeft=15;arcSize=3;" vertex="1" parent="1">
+          <mxGeometry x="50" y="100" width="1069" height="680" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Row 1: AI / ML Services ====== -->
+        <!-- Azure OpenAI -->
+        <mxCell id="dep_oai" value="&lt;b&gt;Azure OpenAI&lt;/b&gt;&lt;br&gt;yiha-mmt0c1uq-eastus2&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;GPT-4o-mini / text-embedding-3-large&lt;br&gt;&lt;/font&gt;&lt;font style=&quot;font-size:9px;color:#C00;&quot;&gt;⚠ Region: East US 2&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_oai_icon" value="" style="shape=image;image=img/lib/azure2/ai_machine_learning/Azure_OpenAI.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="90" y="165" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- AI Search -->
+        <mxCell id="dep_srch" value="&lt;b&gt;AI Search&lt;/b&gt;&lt;br&gt;srch-sprag-poc-jpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;SKU: S1&lt;br&gt;ハイブリッド + セマンティックランカー&lt;br&gt;スキルセット: SplitSkill + EmbeddingSkill&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="160" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_srch_icon" value="" style="shape=image;image=img/lib/azure2/ai_machine_learning/Cognitive_Services.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="570" y="165" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Row 2: Compute ====== -->
+        <!-- App Service -->
+        <mxCell id="dep_app" value="&lt;b&gt;App Service&lt;/b&gt;&lt;br&gt;app-sprag-poc-jpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;SKU: B1 / Node.js プロキシ + SSO&lt;br&gt;&lt;/font&gt;&lt;font style=&quot;font-size:9px;color:#C00;&quot;&gt;⚠ Region: East Asia&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="310" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_app_icon" value="" style="shape=image;image=img/lib/azure2/app_services/App_Services.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="90" y="315" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- Azure Functions -->
+        <mxCell id="dep_func" value="&lt;b&gt;Azure Functions&lt;/b&gt;&lt;br&gt;func-sprag-poc-jpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Consumption Plan / Python&lt;br&gt;Orchestrator&lt;br&gt;*.japaneast-01.azurewebsites.net&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="310" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_func_icon" value="" style="shape=image;image=img/lib/azure2/compute/Function_Apps.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="360" y="315" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- Application Insights -->
+        <mxCell id="dep_appi" value="&lt;b&gt;Application Insights&lt;/b&gt;&lt;br&gt;appi-sprag-poc-jpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;ログ・メトリクス&lt;br&gt;分散トレーシング&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="310" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_appi_icon" value="" style="shape=image;image=img/lib/azure2/devops/Application_Insights.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="630" y="315" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Row 3: Data ====== -->
+        <!-- Storage Account -->
+        <mxCell id="dep_st" value="&lt;b&gt;Storage Account&lt;/b&gt;&lt;br&gt;stspragpocjpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Blob: sharepoint-documents&lt;br&gt;LRS / Hot&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="460" width="210" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_st_icon" value="" style="shape=image;image=img/lib/azure2/storage/Storage_Accounts.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="90" y="465" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- Cosmos DB -->
+        <mxCell id="dep_cosmos" value="&lt;b&gt;Cosmos DB&lt;/b&gt;&lt;br&gt;cosmos-sprag-poc-jpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Serverless&lt;br&gt;会話履歴 DB&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="460" width="210" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_cosmos_icon" value="" style="shape=image;image=img/lib/azure2/databases/Azure_Cosmos_DB.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="360" y="465" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Row 4: Security ====== -->
+        <!-- Key Vault -->
+        <mxCell id="dep_kv" value="&lt;b&gt;Key Vault&lt;/b&gt;&lt;br&gt;kv-sprag-poc-jpe&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;シークレット管理&lt;br&gt;API キー / 接続文字列&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="610" width="210" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_kv_icon" value="" style="shape=image;image=img/lib/azure2/security/Key_Vaults.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="90" y="615" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- External: Entra ID (outside RG but inside subscription) -->
+        <mxCell id="dep_entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;テナントレベル&lt;br&gt;SSO / App Registration&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="160" width="190" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_entra_icon" value="" style="shape=image;image=img/lib/azure2/identity/Azure_Active_Directory.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="870" y="165" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- External: SharePoint Online -->
+        <mxCell id="dep_sp" value="&lt;b&gt;SharePoint Online&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Microsoft 365 テナント&lt;br&gt;社内文書ソース&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;strokeWidth=1.5;fontFamily=Meiryo UI;fontSize=11;fontColor=#333333;arcSize=8;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="310" width="190" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_sp_icon" value="" style="shape=image;image=img/lib/azure2/general/Module.svg;imageWidth=32;imageHeight=32;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="870" y="315" width="32" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- ====== Deployment Arrows ====== -->
+        <!-- App → Functions -->
+        <mxCell id="dep_e01" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#0078D4;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_app" target="dep_func">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_e01_l" value="REST" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="dep_e01">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Functions → OpenAI -->
+        <mxCell id="dep_e02" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#0078D4;strokeWidth=1.5;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_func" target="dep_oai">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Functions → AI Search -->
+        <mxCell id="dep_e03" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#0078D4;strokeWidth=1.5;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_func" target="dep_srch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Functions → Cosmos DB -->
+        <mxCell id="dep_e04" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#0078D4;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_func" target="dep_cosmos">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- AI Search → OpenAI (Skillset: Embedding) -->
+        <mxCell id="dep_e05" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#0078D4;strokeWidth=1;dashed=1;dashPattern=4 3;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_srch" target="dep_oai">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_e05_l" value="Skillset (Embedding)" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="dep_e05">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- AI Search → Storage -->
+        <mxCell id="dep_e06" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#0078D4;strokeWidth=1.5;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_srch" target="dep_st">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="618" y="290"/>
+              <mxPoint x="238" y="290"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep_e06_l" value="Blob Indexer" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="dep_e06">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Storage ← SharePoint -->
+        <mxCell id="dep_e07" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#999999;strokeWidth=1.5;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_sp" target="dep_st">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="360"/>
+              <mxPoint x="830" y="510"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep_e07_l" value="Graph API (sp_to_blob.py)" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="dep_e07">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- App → Entra ID -->
+        <mxCell id="dep_e08" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#999999;strokeWidth=1.5;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;fontFamily=Meiryo UI;fontSize=9;fontColor=#555555;" edge="1" parent="1" source="dep_app" target="dep_entra">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="335"/>
+              <mxPoint x="830" y="235"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep_e08_l" value="Entra ID SSO" style="edgeLabel;html=1;fontSize=9;fontFamily=Meiryo UI;fontColor=#555555;labelBackgroundColor=#FFFFFF;" connectable="0" vertex="1" parent="dep_e08">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- All → Key Vault (visual indicator) -->
+        <mxCell id="dep_kv_note" value="&lt;font style=&quot;font-size:9px;&quot;&gt;App Service, Functions, AI Search&lt;br&gt;が Key Vault を参照&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;size=12;fillColor=#FFF3CD;strokeColor=#FFD700;fontFamily=Meiryo UI;fontSize=9;fontColor=#856404;align=left;spacingLeft=6;spacingTop=2;" vertex="1" parent="1">
+          <mxGeometry x="350" y="630" width="210" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_kv_note_e" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#FFD700;strokeWidth=1;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="dep_kv_note" target="dep_kv">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- App Insights note -->
+        <mxCell id="dep_appi_note" value="&lt;font style=&quot;font-size:9px;&quot;&gt;App Service, Functions から&lt;br&gt;テレメトリを収集&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;size=12;fillColor=#FFF3CD;strokeColor=#FFD700;fontFamily=Meiryo UI;fontSize=9;fontColor=#856404;align=left;spacingLeft=6;spacingTop=2;" vertex="1" parent="1">
+          <mxGeometry x="620" y="460" width="190" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep_appi_note_e" style="rounded=1;orthogonalLoop=1;html=1;strokeColor=#FFD700;strokeWidth=1;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="dep_appi_note" target="dep_appi">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Region note -->
+        <mxCell id="dep_region_note" value="&lt;font style=&quot;font-size:9px;&quot;&gt;&lt;b&gt;リージョン補足&lt;/b&gt;&lt;br&gt;・Azure OpenAI: East US 2（Japan East で GPT-4o-mini Standard 非対応）&lt;br&gt;・App Service: East Asia（Japan East で B1 クォータ不足）&lt;br&gt;・その他: Japan East&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF3CD;strokeColor=#FFD700;fontFamily=Meiryo UI;fontSize=9;fontColor=#856404;align=left;spacingLeft=6;spacingTop=4;spacingRight=4;" vertex="1" parent="1">
+          <mxGeometry x="620" y="530" width="380" height="70" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+</mxfile>
