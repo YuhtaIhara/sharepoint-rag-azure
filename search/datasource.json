@@ -2,7 +2,7 @@
   "name": "sprag-datasource",
   "type": "azureblob",
   "credentials": {
-    "connectionString": "ResourceId=/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/rg-sprag-poc-jpe/providers/Microsoft.Storage/storageAccounts/stspragpocjpe;"
+    "connectionString": "ResourceId=/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.Storage/storageAccounts/${STORAGE_ACCOUNT_NAME};"
   },
   "container": {
     "name": "sharepoint-documents"

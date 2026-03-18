@@ -1,12 +1,3 @@
----
-title: 試験仕様書
-doc_id: "11"
-version: "0.2"
-status: draft
-issue: "#41"
-updated: 2026-03-18
----
-
 # 試験仕様書
 
 ## 変更履歴

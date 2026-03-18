@@ -1,22 +1,3 @@
----
-type: draft
-document: 構築手順書
-format: Word
-issue: "#44"
-created: 2026-03-15
-updated: 2026-03-18
-version: "0.5"
-status: draft
----
-
-<!-- Word 化時の表紙情報 -->
-<!-- PJ名: SharePoint RAG チャットボット PoC -->
-<!-- 文書名: 構築手順書 -->
-<!-- 版数: 0.5 -->
-<!-- 日付: 2026-03-18 -->
-<!-- 作成者: 構築担当者 -->
-<!-- 承認者: PJリーダー -->
-
 # 構築手順書
 
 ## 変更履歴

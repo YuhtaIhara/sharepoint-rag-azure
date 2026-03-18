@@ -1,22 +1,3 @@
----
-type: draft
-document: 運用手順書
-format: Word
-issue: "#41"
-created: 2026-03-18
-updated: 2026-03-18
-version: "0.1"
-status: draft
----
-
-<!-- Word 化時の表紙情報 -->
-<!-- PJ名: SharePoint RAG チャットボット PoC -->
-<!-- 文書名: 運用手順書 -->
-<!-- 版数: 0.1 -->
-<!-- 日付: 2026-03-18 -->
-<!-- 作成者: 構築担当者 -->
-<!-- 承認者: PJリーダー -->
-
 # 運用手順書
 
 ## 変更履歴

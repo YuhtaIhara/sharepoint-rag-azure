@@ -3,9 +3,9 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "python",
-    "AZURE_OPENAI_ENDPOINT": "https://oai-sprag-poc-eastus2.services.ai.azure.com/",
+    "AZURE_OPENAI_ENDPOINT": "https://your-openai-resource.openai.azure.com/",
     "AZURE_OPENAI_API_KEY": "your-api-key",
-    "AZURE_SEARCH_ENDPOINT": "https://srch-sprag-poc-jpe.search.windows.net",
+    "AZURE_SEARCH_ENDPOINT": "https://your-search-resource.search.windows.net",
     "AZURE_SEARCH_API_KEY": "your-search-key",
     "COSMOS_CONNECTION_STRING": "your-cosmos-connection-string",
     "STORAGE_CONNECTION_STRING": "your-storage-connection-string",

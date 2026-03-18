@@ -16,5 +16,5 @@ node_modules/
 __pycache__/
 .venv/
 
-# SharePoint folder snapshot (contains actual company documents)
+# SharePoint folder snapshot (test data)
 sp-folder-snapshot/

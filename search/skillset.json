@@ -22,7 +22,7 @@
       "name": "embedding",
       "description": "text-embedding-3-large でベクトル生成",
       "context": "/document/chunks/*",
-      "resourceUri": "https://oai-sprag-poc-eastus2.services.ai.azure.com/",
+      "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
       "deploymentId": "text-embedding-3-large",
       "modelName": "text-embedding-3-large",
       "apiKey": "${AZURE_OPENAI_API_KEY}",

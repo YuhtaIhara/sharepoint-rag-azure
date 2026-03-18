@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it via [GitHub Issues](../../issues) with the label `security`.
+If you discover a security vulnerability, please report it through [GitHub Security Advisories](https://github.com/YuhtaIhara/sharepoint-rag-azure/security/advisories/new).
+
+Do **not** open a public issue for security vulnerabilities.
 
 ## Security Design
-
-This project includes a comprehensive security design:
 
 - **Threat Model**: STRIDE-based analysis covering 11 threat scenarios
 - **Authentication**: Entra ID SSO (MSAL) for users, Managed Identity for service-to-service

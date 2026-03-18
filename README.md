@@ -2,7 +2,8 @@
 
 [![Azure](https://img.shields.io/badge/Azure-AI%20Search%20%2B%20OpenAI-0078D4?logo=microsoftazure)](https://azure.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![IaC](https://img.shields.io/badge/IaC-Bicep-orange)](infra/)
+
+A RAG chatbot for SharePoint documents with ACL-based access control. Built on Azure AI Search and Azure OpenAI, it enforces SharePoint folder-level permissions at query time so users only retrieve answers from documents they are authorized to access.
 
 SharePoint 文書を対象とした、**ACL ベースのアクセス制御付き RAG チャットボット**。
 
@@ -36,38 +37,37 @@ Azure AI Search + Azure OpenAI を基盤とし、**SharePoint のフォルダ単
 | データベース | Cosmos DB | Serverless |
 | 認証 | Entra ID | SSO (MSAL) |
 | ホスティング | App Service | B1 |
-| IaC | Bicep | — |
 
 ## リポジトリ構成
 
 ```
 sharepoint-rag-azure/
+├── functions/               # Azure Functions (Python) — チャット API
+│   └── chat/                    # 検索・LLM・会話履歴モジュール
+├── scripts/                 # ユーティリティスクリプト
+│   └── sp_to_blob.py           # SP → Blob 同期（ACL メタデータ付き）
+├── search/                  # AI Search リソース定義（JSON）
+│   ├── datasource.json
+│   ├── index.json
+│   ├── indexer.json
+│   └── skillset.json
+├── webapp/                  # フロントエンド（Express + 静的 HTML）
+│   └── public/                  # チャット UI
 ├── docs/                    # 設計書（ライフサイクル順）
-│   ├── 01-requirements.md       # 要件定義書
-│   ├── 02-architecture.md       # アーキテクチャ設計書（ADR 含む）
-│   ├── 03-security.md           # セキュリティ設計書（STRIDE 脅威モデル）
-│   ├── 04-resource-design.md    # リソース設計書 + コスト試算
-│   ├── 05-parameter-sheet.md    # パラメータシート（値は REDACT 済み）
-│   ├── 10-build-guide.md        # 構築手順書（ステップバイステップ）
-│   └── 11-test-spec.md          # 試験仕様書（ACL シナリオ）
-├── diagrams/                # 構成図（draw.io）
-├── infra/                   # Infrastructure as Code
-│   ├── modules/                 # リソース別 Bicep モジュール
-│   └── parameters/              # 環境別パラメータ
-└── .github/workflows/       # CI/CD（予定）
+├── diagrams/                # 構成図（draw.io + PNG）
+└── infra/                   # Infrastructure as Code（予定）
 ```
 
 ## 設計書一覧
 
-| # | 文書 | 内容 | 版数 |
-|---|------|------|------|
-| 01 | [要件定義書](docs/01-requirements.md) | スコープ、ユースケース、機能/非機能要件 | v0.6 |
-| 02 | [アーキテクチャ設計書](docs/02-architecture.md) | コンポーネント設計、データフロー、ADR | v0.7 |
-| 03 | [セキュリティ設計書](docs/03-security.md) | STRIDE 脅威モデル、認証/認可、ACL 設計 | v0.4 |
-| 04 | [リソース設計書](docs/04-resource-design.md) | 命名規則、SKU 選定、コスト試算、RBAC | v0.6 |
-| 05 | [パラメータシート](docs/05-parameter-sheet.md) | 全リソースの設定値（機密値は REDACT 済み） | v0.3 |
-| 10 | [構築手順書](docs/10-build-guide.md) | Azure Portal / CLI によるステップバイステップ構築 | v0.5 |
-| 11 | [試験仕様書](docs/11-test-spec.md) | ACL シナリオテスト（12 ケース × 3 ユーザー = 36 テストポイント） | v0.1 |
+- [要件定義書](docs/01-requirements.md) — スコープ、ユースケース、機能/非機能要件
+- [アーキテクチャ設計書](docs/02-architecture.md) — コンポーネント設計、データフロー、ADR
+- [セキュリティ設計書](docs/03-security.md) — STRIDE 脅威モデル、認証/認可、ACL 設計
+- [リソース設計書](docs/04-resource-design.md) — 命名規則、SKU 選定、コスト試算、RBAC
+- [パラメータシート](docs/05-parameter-sheet.md) — 全リソースの設定値（機密値は REDACT 済み）
+- [構築手順書](docs/10-build-guide.md) — Azure Portal / CLI によるステップバイステップ構築
+- [試験仕様書](docs/11-test-spec.md) — ACL シナリオテスト
+- [運用手順書](docs/12-operations-runbook.md) — 運用・トラブルシューティング
 
 ## ACL テストマトリクス
 
@@ -92,7 +92,7 @@ sharepoint-rag-azure/
 - SharePoint テストサイト
 - Azure CLI / Azure PowerShell
 
-### デプロイ手順
+### デプロイ
 
 > 詳細な手順: [構築手順書](docs/10-build-guide.md)
 
@@ -103,14 +103,12 @@ sharepoint-rag-azure/
 5. インジェストパイプライン実行（Graph API → Blob → AI Search インデックス）
 6. ACL テスト実施（[試験仕様書](docs/11-test-spec.md) に準拠）
 
-### デプロイ
-
 ```bash
 # Functions デプロイ
 cd functions
 zip -r ../functions.zip .
 az functionapp deployment source config-zip \
-  -g rg-sprag-poc-jpe -n func-sprag-poc-jpe \
+  -g <resource-group> -n <function-app-name> \
   --src functions.zip
 
 # webapp デプロイ
@@ -118,7 +116,7 @@ cd webapp
 npm install && npm run build
 zip -r ../webapp.zip .
 az webapp deployment source config-zip \
-  -g rg-sprag-poc-jpe -n app-sprag-poc-jpe \
+  -g <resource-group> -n <app-service-name> \
   --src webapp.zip
 ```
 
@@ -129,25 +127,14 @@ webapp 環境変数:
 | `BACKEND_API_URL` | Functions エンドポイント URL |
 | `FUNCTIONS_KEY` | Functions デフォルトキー |
 
-Entra ID 認証: App Service →「認証」→ ID プロバイダー「Microsoft」→ `app-sprag-poc` を選択。Entra ID アプリ側でリダイレクト URI と ID トークンを有効化する。
+Entra ID 認証: App Service →「認証」→ ID プロバイダー「Microsoft」→ アプリ登録を選択。Entra ID アプリ側でリダイレクト URI と ID トークンを有効化する。
 
 ### 使い方
 
-1. `https://app-sprag-poc-jpe.azurewebsites.net` にアクセス
+1. `https://<your-app-service>.azurewebsites.net` にアクセス
 2. Entra ID でサインイン（シングルテナント、自社アカウントのみ）
 3. チャット UI で質問を入力 — SharePoint 文書を情報源とした回答が返る
 4. ユーザーのフォルダ権限に応じて、アクセス権のある文書のみが検索対象となる
-
-### リソースホスト名
-
-| リソース | ホスト名 |
-|---------|---------|
-| Functions | `func-sprag-poc-jpe-xxxxxxxxxx.japaneast-01.azurewebsites.net` |
-| App Service | `app-sprag-poc-jpe.azurewebsites.net` |
-| AI Search | `srch-sprag-poc-jpe.search.windows.net` |
-| Azure OpenAI | `oai-sprag-poc-eastus2.services.ai.azure.com` |
-
-> Functions は新しい Azure 命名形式 `{name}-{hash}.{region}-01.azurewebsites.net` が適用される。
 
 ## 運用手順
 

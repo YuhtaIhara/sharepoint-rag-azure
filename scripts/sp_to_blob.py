@@ -8,6 +8,7 @@ Usage:
 """
 
 import argparse
+import base64
 import json as _json
 import logging
 import os
@@ -293,7 +294,6 @@ def sync(dry_run: bool = False):
         content = download_file(token, item)
 
         # メタデータ（Blob メタデータは ASCII のみ → 非ASCII は URL エンコード）
-        import base64
         metadata = {
             "source_url": quote(source_url, safe=":/&?="),
             "title": base64.b64encode(filename.encode("utf-8")).decode("ascii"),
