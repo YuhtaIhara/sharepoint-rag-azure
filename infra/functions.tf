@@ -50,6 +50,7 @@ resource "azurerm_linux_function_app" "main" {
 
     # Search tuning
     "RERANKER_THRESHOLD" = "0"
+    "ACL_ENABLED"        = "true"
 
     # SP sync config
     "SP_SITE_HOSTNAME"    = var.sp_site_hostname

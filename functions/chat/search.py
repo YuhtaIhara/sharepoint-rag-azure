@@ -31,10 +31,18 @@ def hybrid_search(
     """ハイブリッド検索 + セマンティックランカー + ACL フィルタ"""
     client = get_search_client()
 
-    # ACL フィルタ構築
-    # TODO: Phase 2 で Entra ID グループベースの ACL を実装
-    # 現状は PoC のため ACL フィルタを無効化（全文書にアクセス可能）
-    acl_filter = None
+    # ACL フィルタ構築（ACL_ENABLED=false で無効化可能）
+    if os.environ.get("ACL_ENABLED", "true").lower() == "true" and user_groups:
+        escaped = ",".join(
+            f"'{g.replace(chr(39), chr(39) * 2)}'" for g in user_groups
+        )
+        acl_filter = (
+            f"(allowed_groups/any(g: g eq '*') or "
+            f"allowed_groups/any(g: search.in(g, {escaped})))"
+        )
+        log.info("ACL filter: %s", acl_filter)
+    else:
+        acl_filter = None
 
     # ベクトルクエリ
     vector_query = VectorizableTextQuery(
