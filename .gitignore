@@ -28,3 +28,4 @@ __pycache__/
 
 # SharePoint folder snapshot (test data)
 sp-folder-snapshot/
+infra/terraform.tfstate.*.backup

@@ -79,8 +79,14 @@ for ws in $(az monitor log-analytics workspace list --resource-group "$RG" --que
   az monitor log-analytics workspace delete --workspace-name "$ws" --resource-group "$RG" --force --yes 2>/dev/null || true
 done
 
-# === 優先度8: Key Vault (論理削除 + purge) ===
-echo "=== [8] Key Vault 削除 ==="
+# === 優先度8: Key Vault secrets purge + KV 削除 ===
+echo "=== [8] Key Vault secrets purge + KV 削除 ==="
+# secrets を個別に削除+purge（KV 削除後だと purge できなくなるため先にやる）
+for secret in AZURE-OPENAI-KEY AZURE-OPENAI-ENDPOINT SEARCH-API-KEY SEARCH-ENDPOINT COSMOS-CONNECTION-STRING STORAGE-CONNECTION-STRING GRAPH-CLIENT-ID GRAPH-CLIENT-SECRET GRAPH-TENANT-ID; do
+  az keyvault secret delete --vault-name kv-sprag-poc-jpe --name "$secret" 2>/dev/null || true
+  az keyvault secret purge --vault-name kv-sprag-poc-jpe --name "$secret" 2>/dev/null || true
+done
+echo "  secrets purged"
 az keyvault delete --name "kv-sprag-poc-jpe" --resource-group "$RG" 2>/dev/null \
   || echo "  (存在しないかすでに削除済み)"
 az keyvault purge --name "kv-sprag-poc-jpe" 2>/dev/null \

@@ -1,11 +1,11 @@
 {
   "name": "sprag-skillset",
-  "description": "SP RAG PoC: テキスト分割 → OpenAI Embedding（DI 統合は次フェーズ）",
+  "description": "SP RAG PoC: text split + OpenAI Embedding (DI integration deferred to Phase 2)",
   "skills": [
     {
       "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
       "name": "text-split",
-      "description": "テキストをチャンクに分割",
+      "description": "Split text into chunks",
       "context": "/document",
       "textSplitMode": "pages",
       "maximumPageLength": 2000,
@@ -20,7 +20,7 @@
     {
       "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
       "name": "embedding",
-      "description": "text-embedding-3-large でベクトル生成",
+      "description": "Generate vectors with text-embedding-3-large",
       "context": "/document/chunks/*",
       "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
       "deploymentId": "text-embedding-3-large",
