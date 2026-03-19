@@ -85,11 +85,11 @@ for res_id in \
 done
 
 echo ""
-echo "=== [5/10] Terraform apply ==="
+echo "=== [5/11] Terraform apply ==="
 terraform apply -auto-approve
 
 echo ""
-echo "=== [6/10] Search objects デプロイ ==="
+echo "=== [6/11] Search objects デプロイ ==="
 SEARCH_ENDPOINT=$(terraform output -raw search_endpoint)
 SEARCH_KEY=$(az search admin-key show --resource-group "$RG" --service-name srch-sprag-poc-jpe --query primaryKey -o tsv)
 OPENAI_ENDPOINT=$(terraform output -raw openai_endpoint)
@@ -140,12 +140,12 @@ deploy_search_object "indexers" "sprag-indexer" "search/indexer.json"
 deploy_search_object "indexers" "sprag-indexer-fallback" "search/indexer-fallback.json"
 
 echo ""
-echo "=== [7/10] セマンティック検索有効化 ==="
+echo "=== [7/11] セマンティック検索有効化 ==="
 az search service update --resource-group "$RG" --name srch-sprag-poc-jpe --semantic-search free -o none 2>&1
 echo "  OK"
 
 echo ""
-echo "=== [8/10] インデクサー実行 ==="
+echo "=== [8/11] インデクサー実行 ==="
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/run?api-version=${API_VERSION}" \
@@ -154,7 +154,7 @@ echo ""
 echo "  インデクサーを手動トリガーしました（primary + fallback）"
 
 echo ""
-echo "=== [9/10] FUNCTIONS_KEY 設定 ==="
+echo "=== [9/11] FUNCTIONS_KEY 設定 ==="
 FUNC_NAME="func-${PROJECT:-sprag-poc}-ea"
 WEBAPP_NAME="app-${PROJECT:-sprag-poc}-ea"
 
@@ -178,7 +178,32 @@ else
 fi
 
 echo ""
-echo "=== [10/10] デプロイ状態確認 ==="
+echo "=== [10/11] EasyAuth v2 設定 ==="
+WEBAPP_NAME="app-${PROJECT:-sprag-poc}-ea"
+ENTRA_CLIENT_ID="REDACTED_CLIENT_ID"
+TENANT_ID=$(az account show --query tenantId -o tsv 2>/dev/null)
+CLIENT_SECRET=$(az keyvault secret show --vault-name kv-sprag-poc-jpe --name GRAPH-CLIENT-SECRET --query value -o tsv 2>/dev/null || echo "")
+
+if [ -n "$CLIENT_SECRET" ]; then
+  # v2 にアップグレード（既に v2 なら no-op）
+  az webapp auth config-version upgrade -n "$WEBAPP_NAME" -g "$RG" -o none 2>/dev/null || true
+  # Microsoft プロバイダー設定
+  az webapp auth microsoft update \
+    -n "$WEBAPP_NAME" -g "$RG" \
+    --client-id "$ENTRA_CLIENT_ID" \
+    --client-secret "$CLIENT_SECRET" \
+    --issuer "https://login.microsoftonline.com/${TENANT_ID}/v2.0" \
+    --yes -o none 2>&1
+  # 認証有効化
+  az webapp auth update -n "$WEBAPP_NAME" -g "$RG" --enabled true -o none 2>&1
+  echo "  EasyAuth v2 configured (Entra ID SSO)"
+else
+  echo "  WARNING: CLIENT_SECRET を取得できませんでした（KV アクセス不可）"
+  echo "  手動で設定してください"
+fi
+
+echo ""
+echo "=== [11/11] デプロイ状態確認 ==="
 echo "  Primary indexer status:"
 curl -sf "${SEARCH_ENDPOINT}/indexers/sprag-indexer/status?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'    status={d[\"status\"]}, lastResult={d.get(\"lastResult\",{}).get(\"status\",\"none\")}')"
