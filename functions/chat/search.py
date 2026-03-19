@@ -29,13 +29,9 @@ def hybrid_search(
     client = get_search_client()
 
     # ACL フィルタ構築
+    # TODO: Phase 2 で Entra ID グループベースの ACL を実装
+    # 現状は PoC のため ACL フィルタを無効化（全文書にアクセス可能）
     acl_filter = None
-    if user_groups:
-        escaped = ",".join(f"'{g.replace(chr(39), chr(39)+chr(39))}'" for g in user_groups)
-        acl_filter = (
-            f"(allowed_groups/any(g: search.in(g, {escaped})) "
-            f"or allowed_groups/any(g: g eq '*'))"
-        )
 
     # ベクトルクエリ
     vector_query = VectorizableTextQuery(
