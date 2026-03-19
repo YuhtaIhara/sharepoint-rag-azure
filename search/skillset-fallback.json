@@ -1,0 +1,54 @@
+{
+  "name": "sprag-skillset-fallback",
+  "description": "SP RAG PoC: SplitSkill fallback for DI-unsupported formats (.doc, .csv)",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+      "name": "text-split",
+      "description": "Text chunking fallback for unsupported DI formats",
+      "context": "/document",
+      "textSplitMode": "pages",
+      "maximumPageLength": 2000,
+      "pageOverlapLength": 200,
+      "inputs": [
+        {"name": "text", "source": "/document/content"}
+      ],
+      "outputs": [
+        {"name": "textItems", "targetName": "chunks"}
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+      "name": "embedding",
+      "description": "text-embedding-3-large vector generation",
+      "context": "/document/chunks/*",
+      "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
+      "deploymentId": "text-embedding-3-large",
+      "modelName": "text-embedding-3-large",
+      "apiKey": "${AZURE_OPENAI_API_KEY}",
+      "inputs": [
+        {"name": "text", "source": "/document/chunks/*"}
+      ],
+      "outputs": [
+        {"name": "embedding", "targetName": "text_vector"}
+      ]
+    }
+  ],
+  "indexProjections": {
+    "selectors": [
+      {
+        "targetIndexName": "sprag-index",
+        "parentKeyFieldName": "parent_id",
+        "sourceContext": "/document/chunks/*",
+        "mappings": [
+          {"name": "chunk", "source": "/document/chunks/*"},
+          {"name": "text_vector", "source": "/document/chunks/*/text_vector"},
+          {"name": "title", "source": "/document/metadata_storage_name"}
+        ]
+      }
+    ],
+    "parameters": {
+      "projectionMode": "skipIndexingParentDocuments"
+    }
+  }
+}

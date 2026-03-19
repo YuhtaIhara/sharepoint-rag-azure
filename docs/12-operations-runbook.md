@@ -5,6 +5,7 @@
 | 版数 | 日付 | 変更者 | 変更内容 |
 |------|------|--------|----------|
 | 0.1 | 2026-03-18 | 構築担当者 | 初版作成 |
+| 0.2 | 2026-03-18 | 構築担当者 | SP 同期自動化 (Timer Trigger)・CI/CD 運用セクション追加 |
 
 ---
 
@@ -549,57 +550,73 @@ curl -s -o /dev/null -w "%{http_code}" "https://app-sprag-poc-jpe.azurewebsites.
 
 ## 4. 日常運用
 
-### 4.1 新規文書の追加
+### 4.1 SP 同期の自動化（Timer Trigger）
 
-SharePoint に新しい文書をアップロードした後、以下の手順で検索インデックスに反映する。
+Timer Trigger (`sync_trigger`) により、SP → Blob → インデックスの同期が自動化されている。
+
+#### 自動同期の動作
+
+```
+毎時0分: Timer Trigger 発火
+  → SP 全ファイルリストを取得（Graph API、軽量）
+  → 各ファイルの lastModifiedDateTime と Blob の Last-Modified を比較
+  → 差分があるファイルのみ DL + UL（重い処理は差分だけ）
+  → SP に存在しないファイルは Blob から削除
+  → インデックスの ACL メタデータを一括更新
+毎時（インデクサースケジュール PT1H）:
+  → Blob の変更を検知 → DI Layout / SplitSkill → インデックス更新
+```
+
+#### 通常運用
+
+**新規文書追加・権限変更**: 手動作業は不要。Timer Trigger が毎時自動で検知・反映する。
+
+**即時反映が必要な場合**:
 
 ```bash
-# 前提: scripts ディレクトリの venv を有効化済み、環境変数を設定済み
+# 方法 1: ポータルからインデクサーを手動実行
+# Azure ポータル → AI Search → インデクサー → sprag-indexer → 実行
 
-# 1. SP → Blob 同期
-cd scripts
-python sp_to_blob.py
-
-# 2. AI Search インデクサー実行
+# 方法 2: API で直接実行
 curl -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=2024-07-01" \
   -H "api-key: ${SEARCH_API_KEY}"
-
-# 3. インデクサー完了を待つ（通常 1〜5 分）
-# ステータス確認
-curl -s "${SEARCH_ENDPOINT}/indexers/sprag-indexer/status?api-version=2024-07-01" \
-  -H "api-key: ${SEARCH_API_KEY}" | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-s = d.get('lastResult', {})
-print(f'Status: {s.get(\"status\", \"N/A\")}, Items: {s.get(\"itemCount\", 0)}, Errors: {s.get(\"errorCount\", 0)}')
-"
-
-# 4. ACL メタデータ更新（必須）
-python update_index_metadata.py
 ```
 
-> **重要**: 手順 4 は省略不可。インデクサーの indexProjections は Blob カスタムメタデータ (`allowed_groups`) を子ドキュメントに伝播しないため、このスクリプトがなければ ACL フィルタが機能しない。
+#### Timer Trigger のモニタリング
 
-### 4.2 権限変更への対応
+| 確認項目 | 確認方法 |
+|---------|---------|
+| 実行履歴 | Azure ポータル → Functions → 関数 → `sync_trigger` → モニター |
+| ログ | Application Insights → トランザクションの検索 → `sync_trigger` でフィルタ |
+| 直近の同期結果 | ログで `Sync complete: synced=X, skipped=Y, deleted=Z` を確認 |
 
-SharePoint でフォルダ権限を変更した場合:
+#### 手動同期（フォールバック）
+
+Timer Trigger が動作しない場合、手動で同期を実行する:
 
 ```bash
-# 1. SP → Blob 再同期（ACL メタデータが更新される）
 cd scripts
-python sp_to_blob.py
-
-# 2. ACL メタデータ更新（Blob メタデータ → インデックスへ反映）
-python update_index_metadata.py
+source .venv/Scripts/activate
+python sp_to_blob.py          # SP → Blob 同期
+python update_index_metadata.py  # ACL メタデータ更新
 ```
 
-> 権限変更のみの場合、インデクサーの再実行は不要。`sp_to_blob.py` が Blob メタデータの `allowed_groups` を更新し、`update_index_metadata.py` がインデックスに反映する。
-
-### 4.3 インデクサー再実行時の注意
+### 4.2 インデクサー再実行時の注意
 
 インデクサーを再実行すると、indexProjections が再度子ドキュメントを生成する。この際、`allowed_groups`, `category`, `source_url` はデフォルト値（空）にリセットされる。
 
-**インデクサー実行後は必ず `update_index_metadata.py` を実行すること。**
+Timer Trigger が稼働中であれば、次回実行時に自動でメタデータが再設定される。即時反映が必要な場合は `update_index_metadata.py` を手動実行する。
+
+### 4.3 CI/CD によるコードデプロイ
+
+GitHub Actions により、`main` ブランチへの push で自動デプロイされる。
+
+| ワークフロー | トリガー | 内容 |
+|-------------|---------|------|
+| `deploy-functions.yml` | `functions/**` 変更 | Python 3.12 + pip install → Azure Functions にデプロイ |
+| `deploy-webapp.yml` | `webapp/**` 変更 | Node.js 22 + npm install → App Service にデプロイ |
+
+手動トリガー: GitHub → Actions → ワークフロー選択 → Run workflow
 
 ### 4.4 トラブルシューティング
 

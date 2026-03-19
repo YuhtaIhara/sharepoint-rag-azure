@@ -8,6 +8,8 @@
 | 0.2 | 2026-03-18 | 構築担当者 | リージョン変更反映（OpenAI→East US 2、App Service→East Asia）。Summary を実績値に更新。oai-sprag-poc-jpe 削除記録 |
 | 0.3 | 2026-03-18 | 構築担当者 | デプロイ実績反映。RBAC 全件設定済。KV シークレット全件登録済。Functions/App Service ホスト名・アプリ設定を実績値に更新 |
 | 0.4 | 2026-03-18 | 構築担当者 | スキルセット構成を実績値に更新（SplitSkill + AzureOpenAIEmbeddingSkill）。DI 未使用注記追加 |
+| 0.5 | 2026-03-18 | 構築担当者 | DI Layout スキル統合。2インデクサー構成。Cognitive Services マルチサービスアカウント追加。Blob から Word テンポラリファイル削除 |
+| 0.6 | 2026-03-18 | 構築担当者 | Terraform 管理注記追加。インデクサースケジュール追加 (PT1H)。SP 同期自動化設定追加 |
 
 ---
 
@@ -15,18 +17,19 @@
 
 | #   | シート名                  | リソース種別                | リソース名                  | 作成状況 | 作成日        | 作成者 | 備考      |
 | --- | --------------------- | --------------------- | ---------------------- | ---- | ---------- | --- | ------- |
-| 0   | Resource Group        | Resource Group        | `rg-sprag-poc-jpe`     | 完了  | 2026-03-14 | 担当者A |         |
-| 1   | Entra ID App          | Entra ID アプリ登録        | `app-sprag-poc`        | 完了  | 2026-03-16 | 構築担当者 |         |
-| 2   | Azure OpenAI          | Azure AI Foundry      | `oai-sprag-poc-eastus2` | 完了  | 2026-03-16 | 構築担当者 | ※設計時 `oai-sprag-poc-jpe` (JE) → JE非対応のため East US 2 に変更。旧リソース削除済 |
-| 3   | Document Intelligence | Document Intelligence | `di-sprag-poc-jpe`     | 完了  | 2026-03-16 | 構築担当者 | 構築済み。現在のスキルセットでは未使用（SplitSkill を採用） |
-| 4   | Storage Account       | Storage Account       | `stspragpocjpe`        | 完了  | 2026-03-16 | 構築担当者 |         |
-| 5   | AI Search             | AI Search             | `srch-sprag-poc-jpe`   | 完了  | 2026-03-18 | 構築担当者 | 課金リソース  |
-| 6   | Cosmos DB             | Cosmos DB             | `cosmos-sprag-poc-jpe` | 完了  | 2026-03-16 | 構築担当者 |         |
-| 7   | Key Vault             | Key Vault             | `kv-sprag-poc-jpe`     | 完了  | 2026-03-16 | 構築担当者 |         |
-| 8   | Application Insights  | Application Insights  | `appi-sprag-poc-jpe`   | 完了  | 2026-03-16 | 構築担当者 | Functions 用 (JE) |
-| 9   | Azure Functions       | Azure Functions       | `func-sprag-poc-jpe`   | 完了  | 2026-03-16 | 構築担当者 |         |
-| 10  | App Service           | App Service           | `app-sprag-poc-jpe`    | 完了  | 2026-03-18 | 構築担当者 | 課金リソース。※JEクォータ不足のため East Asia に変更 |
-| 11  | Functions 用 Storage   | Storage Account       | `stfuncspragpoc`       | 完了  | 2026-03-16 | 構築担当者 |         |
+| 0   | Resource Group        | Resource Group        | `rg-sprag-poc-jpe`     | 完了  | 2026-03-14 | 担当者A | `data` 参照 (Terraform) |
+| 1   | Entra ID App          | Entra ID アプリ登録        | `app-sprag-poc`        | 完了  | 2026-03-16 | 構築担当者 | `data` 参照 (Terraform) |
+| 2   | Azure OpenAI          | Azure AI Foundry      | `oai-sprag-poc-eastus2` | Terraform 管理 | — | — | Terraform `azurerm_cognitive_account` + deployment x2 |
+| 3   | Document Intelligence | Document Intelligence | `di-sprag-poc-jpe`     | Terraform 管理 | — | — | Terraform `azurerm_cognitive_account` (FormRecognizer) |
+| 4   | Storage Account       | Storage Account       | `stspragpocjpe`        | Terraform 管理 | — | — | `terraform import` で管理下に |
+| 5   | AI Search             | AI Search             | `srch-sprag-poc-jpe`   | Terraform 管理 | — | — | Terraform + `terraform_data` (search objects) |
+| 6   | Cosmos DB             | Cosmos DB             | `cosmos-sprag-poc-jpe` | Terraform 管理 | — | — | Terraform `azurerm_cosmosdb_account` (serverless) |
+| 7   | Key Vault             | Key Vault             | `kv-sprag-poc-jpe`     | Terraform 管理 | — | — | Terraform + シークレット 9件自動設定 |
+| 8   | Application Insights  | Application Insights  | `appi-sprag-poc-jpe`   | Terraform 管理 | — | — | Terraform + Log Analytics workspace |
+| 9   | Azure Functions       | Azure Functions       | `func-sprag-poc-jpe`   | Terraform 管理 | — | — | Terraform (基盤) + GitHub Actions (コードデプロイ) |
+| 10  | App Service           | App Service           | `app-sprag-poc-ea`     | Terraform 管理 | — | — | Terraform (基盤) + GitHub Actions (コードデプロイ) |
+| 11  | Functions 用 Storage   | Storage Account       | `stfuncspragpoc`       | Terraform 管理 | — | — | Terraform `azurerm_storage_account` |
+| 12  | Cognitive Services    | Cognitive Services (マルチサービス) | `cog-sprag-poc-jpe`    | Terraform 管理 | — | — | Terraform `azurerm_cognitive_account` (CognitiveServices) |
 
 ---
 
@@ -163,8 +166,7 @@
 | エンドポイント | `https://di-sprag-poc-jpe.cognitiveservices.azure.com/` | AI Search スキルセットから参照 |
 | API キー (KEY 1) | `***REDACTED***` | AI Search スキルセットから参照 |
 
-> Document Intelligence のキーは Key Vault ではなく AI Search スキルセットに直接設定する。
-> **注**: 現在のスキルセットでは Document Intelligence は未使用（SplitSkill + AzureOpenAIEmbeddingSkill の2スキル構成）。精度向上時に活用予定。
+> Document Intelligence のキーは Key Vault ではなく AI Search スキルセットの `cognitiveServices` プロパティに直接設定する。
 
 ---
 
@@ -290,20 +292,26 @@
 
 | 項目 | 値 |
 |------|-----|
-| スキルセット名 | `sprag-skillset` |
-| スキル 1 | SplitSkill（テキスト分割: 2000文字、オーバーラップ200） |
+| スキルセット名 (DI) | `sprag-skillset` |
+| スキル 1 | DocumentIntelligenceLayoutSkill（構造解析+チャンキング: text output, 2000文字、オーバーラップ200） |
 | スキル 2 | AzureOpenAIEmbeddingSkill（text-embedding-3-large） |
-| 備考 | Document Intelligence (`di-sprag-poc-jpe`) は構築済みだが現在のスキルセットでは未使用。精度向上時に活用予定 |
+| cognitiveServices | `cog-sprag-poc-jpe` のキーで接続（CognitiveServicesByKey） |
+| スキルセット名 (FB) | `sprag-skillset-fallback` |
+| FB スキル 1 | SplitSkill（テキスト分割: 2000文字、オーバーラップ200） |
+| FB スキル 2 | AzureOpenAIEmbeddingSkill（text-embedding-3-large） |
 
 ### インデクサー
 
 | 項目 | 値 |
 |------|-----|
-| インデクサー名 | `sprag-indexer` |
-| スケジュール | 手動（PoC） |
-| データソース | `sprag-datasource` |
+| インデクサー名 (DI) | `sprag-indexer` |
+| 対象 | `.pdf, .docx, .xlsx, .pptx`（indexedFileNameExtensions） |
 | スキルセット | `sprag-skillset` |
-| ターゲットインデックス | `sprag-index` |
+| allowSkillsetToReadFileData | `true` |
+| インデクサー名 (FB) | `sprag-indexer-fallback` |
+| 対象 | 上記以外（excludedFileNameExtensions で .pdf/.docx/.xlsx/.pptx を除外） |
+| スキルセット | `sprag-skillset-fallback` |
+| 共通 | スケジュール: **PT1H（毎時自動実行）**、データソース: `sprag-datasource`、ターゲット: `sprag-index` |
 
 ### 取得値
 
@@ -567,6 +575,29 @@
 | 9 | タグ | DeleteAfter | `2026-03-31` | — | |
 
 > Functions 作成時に同時作成されるため、個別作成は不要な場合がある。Functions 作成画面で新規ストレージを選択した場合、命名規則に注意。
+
+---
+
+## #12 Cognitive Services（マルチサービス）
+
+### 基本情報
+
+| 項目 | 値 |
+|------|-----|
+| リソース名 | `cog-sprag-poc-jpe` |
+| サービス | Cognitive Services（マルチサービスアカウント） |
+| リソースグループ | `rg-sprag-poc-jpe` |
+| リージョン | Japan East |
+| SKU / プラン | S0 |
+| 用途 | DI Layout スキルの課金リソース。20doc/日超の処理に必須 |
+
+> **注**: DI 単体リソース (`di-sprag-poc-jpe`) のキーでは `cognitiveServices` に接続不可（`InvalidApiType` エラー）。マルチサービスアカウントが必要。
+
+### 取得値
+
+| 項目 | 値 | 用途 |
+|------|-----|------|
+| API キー (KEY 1) | `***REDACTED***` | AI Search スキルセットの `cognitiveServices` プロパティに設定 |
 
 ---
 

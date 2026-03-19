@@ -1,0 +1,16 @@
+# Required
+subscription_id     = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+graph_client_secret = "your-entra-app-client-secret"
+
+# Optional overrides (defaults shown)
+# resource_group_name    = "rg-sprag-poc-jpe"
+# location               = "japaneast"
+# openai_location        = "eastus2"
+# webapp_location        = "eastasia"
+# project                = "sprag-poc"
+# entra_app_display_name = "app-sprag-poc"
+
+# SharePoint sync (required for Timer Trigger auto-sync)
+# sp_site_hostname    = "example.sharepoint.com"
+# sp_site_path        = ""
+# sp_document_library = "Shared Documents"

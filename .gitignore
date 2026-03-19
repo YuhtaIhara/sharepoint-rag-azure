@@ -11,10 +11,20 @@ Thumbs.db
 scripts/.env
 *.tfvars
 !*.example.tfvars
+!terraform.tfvars.example
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Development
 local.settings.json
 node_modules/
 __pycache__/
 .venv/
+.python_packages/
 
 # SharePoint folder snapshot (test data)
 sp-folder-snapshot/

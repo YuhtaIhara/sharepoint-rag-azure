@@ -1,0 +1,32 @@
+name: Deploy Functions
+
+on:
+  push:
+    branches: [main]
+    paths: ["functions/**"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd functions
+          pip install -r requirements.txt --target .python_packages/lib/site-packages/
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: func-sprag-poc-ea
+          package: functions

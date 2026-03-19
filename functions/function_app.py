@@ -8,6 +8,7 @@ import azure.functions as func
 import requests
 
 from chat.orchestrator import handle_chat
+from sync_trigger.sync import run_sync
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
@@ -46,6 +47,17 @@ def health(req: func.HttpRequest) -> func.HttpResponse:
         json.dumps({"status": "ok"}),
         mimetype="application/json",
     )
+
+
+@app.timer_trigger(schedule="0 0 * * * *", arg_name="timer", run_on_startup=False)
+def sync_trigger(timer: func.TimerRequest) -> None:
+    """SP → Blob 差分同期 (毎時0分)"""
+    logging.info("SP sync timer triggered (past_due=%s)", timer.past_due)
+    try:
+        run_sync()
+        logging.info("SP sync completed")
+    except Exception:
+        logging.exception("SP sync failed")
 
 
 @app.route(route="ingest", methods=["POST"])

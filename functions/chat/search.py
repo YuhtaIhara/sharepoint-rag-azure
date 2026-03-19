@@ -54,8 +54,13 @@ def hybrid_search(
         select=["chunk_id", "chunk", "title", "source_url", "category"],
     )
 
+    RERANKER_THRESHOLD = 2.0
+
     docs = []
     for r in results:
+        reranker_score = r.get("@search.rerankerScore", 0) or 0
+        if reranker_score < RERANKER_THRESHOLD:
+            continue
         docs.append({
             "chunk_id": r["chunk_id"],
             "chunk": r["chunk"],
@@ -63,5 +68,6 @@ def hybrid_search(
             "source_url": r.get("source_url", ""),
             "category": r.get("category", ""),
             "score": r.get("@search.score", 0),
+            "reranker_score": reranker_score,
         })
     return docs

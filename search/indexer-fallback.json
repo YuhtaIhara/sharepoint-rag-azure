@@ -1,8 +1,8 @@
 {
-  "name": "sprag-indexer",
+  "name": "sprag-indexer-fallback",
   "dataSourceName": "sprag-datasource",
   "targetIndexName": "sprag-index",
-  "skillsetName": "sprag-skillset",
+  "skillsetName": "sprag-skillset-fallback",
   "schedule": { "interval": "PT1H" },
   "parameters": {
     "maxFailedItems": -1,
@@ -12,8 +12,7 @@
       "dataToExtract": "contentAndMetadata",
       "parsingMode": "default",
       "imageAction": "none",
-      "allowSkillsetToReadFileData": true,
-      "indexedFileNameExtensions": ".pdf,.docx,.xlsx,.pptx"
+      "indexedFileNameExtensions": ".doc,.csv"
     }
   },
   "fieldMappings": [

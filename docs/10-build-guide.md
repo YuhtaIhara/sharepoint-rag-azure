@@ -10,6 +10,7 @@
 | 0.4 | 2026-03-18 | 構築担当者 | リージョン差異反映（OpenAI→East US 2、App Service→East Asia） |
 | 0.5 | 2026-03-18 | 構築担当者 | §4.14 アプリケーションデプロイ手順を追加 |
 | 0.6 | 2026-03-18 | 構築担当者 | RBAC テーブルの OpenAI リソース名を eastus2 に修正。App Service リージョンを East Asia に修正 |
+| 0.7 | 2026-03-18 | 構築担当者 | Terraform 版構築手順を §4.15 に追加 |
 
 ---
 
@@ -455,6 +456,66 @@
 | 3 | 暗黙的な許可 →「ID トークン」にチェック →「構成」 | ID トークン有効化 | 2分 |
 
 > App Service 認証と Entra ID アプリの連携により、アクセス時に Entra ID ログイン画面が表示される。
+
+---
+
+### 4.15 Terraform 版構築手順（推奨）
+
+> §4.0〜4.14 のポータル手順の代替。Terraform で全リソースを一括構築する。
+
+**前提条件（ポータル版の前提に加えて）**:
+- Terraform 1.5+ がインストール済み
+- `bash` / `curl` / `envsubst` が利用可能
+
+#### 手順
+
+```bash
+# 1. 既存リソースのクリーンアップ（壊れた環境がある場合）
+bash infra/cleanup.sh
+
+# 2. Terraform 初期化
+cd infra
+terraform init
+
+# 3. 既存 Storage を import
+terraform import azurerm_storage_account.docs \
+  /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-sprag-poc-jpe/providers/Microsoft.Storage/storageAccounts/stspragpocjpe
+terraform import azurerm_storage_container.documents \
+  https://stspragpocjpe.blob.core.windows.net/sharepoint-documents
+
+# 4. tfvars 設定
+cp terraform.tfvars.example terraform.tfvars
+# terraform.tfvars を編集: subscription_id, graph_client_secret を設定
+
+# 5. plan → apply
+terraform plan    # 差分確認
+terraform apply   # リソース作成（約15分）
+
+# 6. GitHub Actions 設定
+# → GitHub Secrets に AZURE_CREDENTIALS を設定
+# → git push で Functions + webapp が自動デプロイ
+
+# 7. post-apply（Entra ID 認証 + インデクサー初回実行 + メタデータ更新）
+bash scripts/post-apply.sh
+```
+
+#### Terraform で作成されるもの
+
+| 種別 | リソース数 | 内容 |
+|------|-----------|------|
+| Azure リソース | 13 | RG以外の全リソース（§4.1〜4.10 相当） |
+| RBAC 割り当て | 10 | §4.11 相当 |
+| KV シークレット | 9 | §4.7 シークレット登録相当（自動設定） |
+| Search オブジェクト | 6 | index, datasource, skillset x2, indexer x2 |
+
+#### 壊れたときの復旧
+
+```bash
+terraform destroy          # Storage + Entra ID 以外を全削除
+terraform apply            # 全再作成
+git push                   # GitHub Actions がコードデプロイ
+bash scripts/post-apply.sh # Entra ID 認証 + インデクサー初回実行
+```
 
 ---
 
