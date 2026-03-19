@@ -1,23 +1,34 @@
 """OpenAI クライアント — クエリ書き換え + 回答生成"""
 
 import os
+import re
 
 from openai import AzureOpenAI
 
 SYSTEM_PROMPT = """あなたは社内文書検索アシスタントです。
-ユーザーの質問に対して、**検索結果に含まれる情報のみ**を使って回答してください。
+ユーザーの質問に対して、検索結果に含まれる情報を使って回答してください。
 
-## 絶対に守るルール
-- **検索結果に書かれていない情報は、絶対に回答に含めない**。一般知識や推測で補完しない
-- 検索結果が空の場合、または検索結果が質問の内容と**直接関連しない**場合は「該当する情報が見つかりませんでした」とだけ回答する
-- 検索結果の文書にたまたま質問のキーワードが含まれていても、文書の主題が質問と無関係なら「該当なし」と判断する
-- 回答は検索結果の要点を整理し、自分の言葉でまとめる（丸コピペではなく要約する）
+## 回答ルール
+
+### 情報の使い方
+- 検索結果に書かれていない情報は回答に含めない。一般知識や推測で補完しない
+- 検索結果から具体的な情報（手続き、条件、数値、期限、対象者など）を抽出して回答に盛り込む
+- 複数の検索結果に関連情報が分散している場合は、統合して回答を組み立てる
 - 根拠となる文書を [1], [2] のように引用番号で示す
-- 回答は日本語で簡潔に行う
 
-## データの特性
+### 回答の形式
+- 手続き・プロセスに関する質問: ステップや条件を箇条書きで示す
+- 制度・規程に関する質問: 対象者、条件、期間、申請方法など具体的な項目を整理する
+- 文書の内容確認: 重要なポイントを構造的に整理して提示する
+- 検索結果に具体的な数値・期限・条件が含まれていれば、必ず回答に含める
+
+### 回答できない場合
+- 検索結果が空、または内容が質問と明らかに無関係な場合のみ「該当する情報が見つかりませんでした」と回答する
+
+### 注意事項
 - 検索対象は社内のSharePoint文書（契約書、申請書、事業計画、社内規程など）
-- 検索結果にはPDF・Word・Excelから抽出されたテキストが含まれる"""
+- 検索結果にはPDF・Word・Excelから抽出されたテキストが含まれる
+- 回答は日本語で行う"""
 
 _client = None
 
@@ -76,7 +87,11 @@ def generate_answer(
     for i, doc in enumerate(search_results, 1):
         title = doc.get("title") or "文書"
         chunk = doc.get("chunk") or ""
-        context_parts.append(f"[{i}] {title}\n{chunk}")
+        category = doc.get("category") or ""
+        meta = f"[{i}] {title}"
+        if category:
+            meta += f" ({category})"
+        context_parts.append(f"{meta}\n{chunk}")
         citations.append({
             "title": title,
             "url": doc.get("source_url") or "",
@@ -96,7 +111,7 @@ def generate_answer(
     resp = client.chat.completions.create(
         model=deployment,
         messages=messages,
-        temperature=0.1,
+        temperature=0.3,
         max_tokens=1500,
     )
 
@@ -104,8 +119,21 @@ def generate_answer(
 
     # 回答全体が「該当なし」の場合のみ参照元を返さない（ファイル名漏洩防止）
     # 部分的に「見つかりませんでした」を含む場合は参照元を残す
-    answer_stripped = answer.replace(" ", "").replace("\n", "")
-    if answer_stripped in ("該当する情報が見つかりませんでした。", "該当する情報が見つかりませんでした"):
+    _NO_RESULT_PATTERNS = [
+        "該当する情報が見つかりませんでした",
+        "該当する情報は見つかりませんでした",
+        "見つかりませんでした",
+    ]
+    answer_clean = answer.strip().replace(" ", "").replace("\n", "").replace("。", "")
+    if any(p.replace("。", "") in answer_clean for p in _NO_RESULT_PATTERNS) and len(answer_clean) < 80:
         citations = []
+
+    # 存在しない引用番号を除去
+    max_ref = len(search_results)
+    answer = re.sub(
+        r"\[(\d+)\]",
+        lambda m: m.group(0) if 1 <= int(m.group(1)) <= max_ref else "",
+        answer,
+    )
 
     return answer, citations

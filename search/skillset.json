@@ -1,39 +1,48 @@
 {
   "name": "sprag-skillset",
-  "description": "SP RAG PoC: text split + OpenAI Embedding (DI integration deferred to Phase 2)",
+  "description": "SP RAG PoC: DI Layout + OpenAI Embedding",
   "skills": [
     {
-      "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
-      "name": "text-split",
-      "description": "Split text into chunks",
+      "@odata.type": "#Microsoft.Skills.Util.DocumentIntelligenceLayoutSkill",
+      "name": "di-layout",
+      "description": "DI Layout structure-aware text extraction and chunking",
       "context": "/document",
-      "textSplitMode": "pages",
-      "maximumPageLength": 2000,
-      "pageOverlapLength": 200,
+      "outputMode": "oneToMany",
+      "outputFormat": "text",
+      "chunkingProperties": {
+        "unit": "characters",
+        "maximumLength": 2000,
+        "overlapLength": 200
+      },
       "inputs": [
-        {"name": "text", "source": "/document/content"}
+        {"name": "file_data", "source": "/document/file_data"}
       ],
       "outputs": [
-        {"name": "textItems", "targetName": "chunks"}
+        {"name": "text_sections", "targetName": "chunks"}
       ]
     },
     {
       "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
       "name": "embedding",
-      "description": "Generate vectors with text-embedding-3-large",
+      "description": "text-embedding-3-large vector generation",
       "context": "/document/chunks/*",
       "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
       "deploymentId": "text-embedding-3-large",
       "modelName": "text-embedding-3-large",
       "apiKey": "${AZURE_OPENAI_API_KEY}",
       "inputs": [
-        {"name": "text", "source": "/document/chunks/*"}
+        {"name": "text", "source": "/document/chunks/*/content"}
       ],
       "outputs": [
         {"name": "embedding", "targetName": "text_vector"}
       ]
     }
   ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "key": "${COGNITIVE_SERVICES_KEY}",
+    "description": "Multi-service Cognitive Services for DI Layout billing"
+  },
   "indexProjections": {
     "selectors": [
       {
@@ -41,7 +50,7 @@
         "parentKeyFieldName": "parent_id",
         "sourceContext": "/document/chunks/*",
         "mappings": [
-          {"name": "chunk", "source": "/document/chunks/*"},
+          {"name": "chunk", "source": "/document/chunks/*/content"},
           {"name": "text_vector", "source": "/document/chunks/*/text_vector"},
           {"name": "title", "source": "/document/metadata_storage_name"}
         ]

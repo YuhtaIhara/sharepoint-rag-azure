@@ -40,7 +40,7 @@ def handle_chat(body: dict) -> dict:
     log.info("Rewritten query: %s", rewritten)
 
     # 3. ハイブリッド検索 + ACL フィルタ
-    results = search.hybrid_search(rewritten, user_groups, top=5)
+    results = search.hybrid_search(rewritten, user_groups)
     log.info("Search results: %d docs, titles: %s", len(results), [r.get("title", "") for r in results])
 
     # チャンク内容のデバッグ（先頭100文字）

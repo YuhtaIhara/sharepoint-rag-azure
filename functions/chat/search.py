@@ -44,11 +44,12 @@ def hybrid_search(
     else:
         acl_filter = None
 
-    # ベクトルクエリ
+    # ベクトルクエリ（候補を広く取り RRF 融合の精度を上げる）
     vector_query = VectorizableTextQuery(
         text=query,
-        k_nearest_neighbors=top,
+        k_nearest_neighbors=50,
         fields="text_vector",
+        weight=2.0,
     )
 
     results = client.search(
@@ -57,7 +58,7 @@ def hybrid_search(
         filter=acl_filter,
         query_type="semantic",
         semantic_configuration_name="sprag-semantic-config",
-        top=top,
+        top=10,
         select=["chunk_id", "chunk", "title", "source_url", "category"],
     )
 
@@ -90,8 +91,12 @@ def hybrid_search(
             "reranker_score": reranker_score,
         })
 
+    # LLM に渡す最大件数（多すぎるとノイズになる）
+    max_results = int(os.environ.get("MAX_SEARCH_RESULTS", "7"))
+    docs = docs[:max_results]
+
     log.info(
-        "After threshold filter: %d件 (threshold=%.1f)",
-        len(docs), threshold,
+        "After threshold filter: %d件 (threshold=%.1f, max=%d)",
+        len(docs), threshold, max_results,
     )
     return docs
