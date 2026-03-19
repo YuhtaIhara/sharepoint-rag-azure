@@ -121,6 +121,23 @@ print(raw)
   echo "  OK"
 }
 
+# シノニムマップ（インデックスが参照するため先に作成）
+echo "  synonym map: jp-enterprise-synonyms..."
+SYNONYM_JSON=$(python3 -c "
+import json
+with open('search/synonyms.json','r',encoding='utf-8') as f: data=json.load(f)
+print(json.dumps(data,ensure_ascii=False))
+")
+curl -sf -X PUT "${SEARCH_ENDPOINT}/synonymmaps/jp-enterprise-synonyms?api-version=${API_VERSION}" \
+  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
+  -d "$SYNONYM_JSON" -o /dev/null
+echo "  OK"
+
+# インデックス削除（HNSW パラメータ・アナライザー変更は既存インデックスに適用不可）
+echo "  Deleting existing index for clean recreation..."
+curl -sf -X DELETE "${SEARCH_ENDPOINT}/indexes/sprag-index?api-version=${API_VERSION}" \
+  -H "api-key: ${SEARCH_KEY}" -o /dev/null 2>/dev/null || echo "  (index not found, skip)"
+
 # Index
 deploy_search_object "indexes" "sprag-index" "search/index.json"
 

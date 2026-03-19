@@ -11,7 +11,7 @@
       "outputFormat": "text",
       "chunkingProperties": {
         "unit": "characters",
-        "maximumLength": 2000,
+        "maximumLength": 1000,
         "overlapLength": 200
       },
       "inputs": [

@@ -8,7 +8,7 @@
       "description": "Text chunking fallback for unsupported DI formats",
       "context": "/document",
       "textSplitMode": "pages",
-      "maximumPageLength": 2000,
+      "maximumPageLength": 1000,
       "pageOverlapLength": 200,
       "inputs": [
         {"name": "text", "source": "/document/content"}

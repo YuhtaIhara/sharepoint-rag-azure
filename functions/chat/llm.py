@@ -73,6 +73,55 @@ def rewrite_query(message: str, history: list[dict]) -> str:
     return resp.choices[0].message.content.strip()
 
 
+def rewrite_query_multi(message: str, history: list[dict]) -> list[str]:
+    """3つの検索クエリバリアントを生成する"""
+    client = get_client()
+    deployment = os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT", "gpt-4o-mini")
+
+    system_prompt = (
+        "ユーザーの質問に対して、社内文書検索エンジン向けの検索クエリを3つ生成してください。\n\n"
+        "## クエリ生成の観点\n"
+        "1. 元の質問を具体化・明確化したクエリ（略語があれば正式名称も併記）\n"
+        "2. より広い概念や上位カテゴリで検索するクエリ\n"
+        "3. 同義語や別の表現を使ったクエリ\n\n"
+        "1行に1クエリ、合計3行のみ出力してください。説明は不要です。"
+    )
+
+    messages = [{"role": "system", "content": system_prompt}]
+    for h in (history or [])[-6:]:
+        messages.append({"role": h["role"], "content": h["content"]})
+    messages.append({"role": "user", "content": message})
+
+    resp = client.chat.completions.create(
+        model=deployment,
+        messages=messages,
+        temperature=0.3,
+        max_tokens=300,
+    )
+    lines = [ln.strip() for ln in resp.choices[0].message.content.strip().splitlines() if ln.strip()]
+    return lines[:3] or [message]
+
+
+def generate_hyde_query(message: str) -> str:
+    """HyDE: 質問に対する仮想的な回答文を生成し、ベクトル検索クエリとして使う"""
+    client = get_client()
+    deployment = os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT", "gpt-4o-mini")
+
+    resp = client.chat.completions.create(
+        model=deployment,
+        messages=[
+            {"role": "system", "content": (
+                "ユーザーの質問に対して、社内文書に書かれていそうな回答文を1段落だけ生成してください。"
+                "実際の情報でなくて構いません。検索用の仮想文書です。"
+            )},
+            {"role": "user", "content": message},
+        ],
+        temperature=0.5,
+        max_tokens=200,
+    )
+    return resp.choices[0].message.content.strip()
+
+
 def generate_answer(
     message: str,
     search_results: list[dict],

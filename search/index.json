@@ -3,8 +3,8 @@
   "fields": [
     {"name": "chunk_id", "type": "Edm.String", "key": true, "filterable": false, "sortable": false, "facetable": false, "searchable": true, "analyzer": "keyword"},
     {"name": "parent_id", "type": "Edm.String", "key": false, "filterable": true, "sortable": false, "facetable": false, "searchable": false},
-    {"name": "chunk", "type": "Edm.String", "key": false, "filterable": false, "sortable": false, "facetable": false, "searchable": true, "analyzer": "ja.lucene"},
-    {"name": "title", "type": "Edm.String", "key": false, "filterable": true, "sortable": false, "facetable": false, "searchable": true, "analyzer": "ja.lucene"},
+    {"name": "chunk", "type": "Edm.String", "key": false, "filterable": false, "sortable": false, "facetable": false, "searchable": true, "analyzer": "ja.microsoft", "synonymMaps": ["jp-enterprise-synonyms"]},
+    {"name": "title", "type": "Edm.String", "key": false, "filterable": true, "sortable": false, "facetable": false, "searchable": true, "analyzer": "ja.microsoft", "synonymMaps": ["jp-enterprise-synonyms"]},
     {"name": "text_vector", "type": "Collection(Edm.Single)", "searchable": true, "filterable": false, "sortable": false, "facetable": false, "key": false, "dimensions": 3072, "vectorSearchProfile": "vector-profile"},
     {"name": "category", "type": "Edm.String", "key": false, "filterable": true, "sortable": false, "facetable": true, "searchable": false},
     {"name": "source_url", "type": "Edm.String", "key": false, "filterable": false, "sortable": false, "facetable": false, "searchable": false},
@@ -17,7 +17,7 @@
         "kind": "hnsw",
         "hnswParameters": {
           "metric": "cosine",
-          "m": 4,
+          "m": 16,
           "efConstruction": 400,
           "efSearch": 500
         }
@@ -49,7 +49,8 @@
         "name": "sprag-semantic-config",
         "prioritizedFields": {
           "titleField": {"fieldName": "title"},
-          "prioritizedContentFields": [{"fieldName": "chunk"}]
+          "prioritizedContentFields": [{"fieldName": "chunk"}],
+          "prioritizedKeywordFields": [{"fieldName": "category"}]
         }
       }
     ]
