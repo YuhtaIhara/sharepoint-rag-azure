@@ -44,7 +44,7 @@ az storage account delete --name "stfuncspragpoc" --resource-group "$RG" --yes 2
 
 # 4. Azure OpenAI
 echo "=== 4/10 Azure OpenAI 削除 ==="
-az cognitiveservices account delete --name "yiha-mmt0c1uq-eastus2" --resource-group "$RG" 2>/dev/null || echo "  (存在しないかすでに削除済み)"
+az cognitiveservices account delete --name "oai-sprag-poc-eastus2" --resource-group "$RG" 2>/dev/null || echo "  (存在しないかすでに削除済み)"
 
 # 5. Document Intelligence
 echo "=== 5/10 Document Intelligence 削除 ==="
@@ -79,7 +79,7 @@ az keyvault purge --name "kv-sprag-poc-jpe" 2>/dev/null || echo "  (purge 不要
 
 # Cognitive Services の purge (論理削除から完全削除)
 echo "=== Cognitive Services purge ==="
-for name in "yiha-mmt0c1uq-eastus2" "di-sprag-poc-jpe" "cog-sprag-poc-jpe"; do
+for name in "oai-sprag-poc-eastus2" "di-sprag-poc-jpe" "cog-sprag-poc-jpe"; do
   echo "  purge: $name"
   location=$(az cognitiveservices account list-deleted --query "[?name=='$name'].location" -o tsv 2>/dev/null || echo "")
   if [ -n "$location" ]; then

@@ -1,10 +1,13 @@
 """AI Search クライアント — ハイブリッド検索 + ACL フィルタ"""
 
+import logging
 import os
 
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizableTextQuery
+
+log = logging.getLogger(__name__)
 
 _client = None
 
@@ -50,12 +53,24 @@ def hybrid_search(
         select=["chunk_id", "chunk", "title", "source_url", "category"],
     )
 
-    RERANKER_THRESHOLD = 2.0
+    # --- 観測ログ: フィルタ前の全結果を記録 ---
+    all_results = list(results)
+    log.info("Raw search results: %d件 (query=%s)", len(all_results), query)
+    for i, r in enumerate(all_results):
+        score = r.get("@search.rerankerScore")
+        search_score = r.get("@search.score")
+        log.info(
+            "  [%d] reranker=%s search=%s title=%s",
+            i, score, search_score, r.get("title", ""),
+        )
+
+    # --- 閾値フィルタ (環境変数で調整可能) ---
+    threshold = float(os.environ.get("RERANKER_THRESHOLD", "1.0"))
 
     docs = []
-    for r in results:
+    for r in all_results:
         reranker_score = r.get("@search.rerankerScore", 0) or 0
-        if reranker_score < RERANKER_THRESHOLD:
+        if reranker_score < threshold:
             continue
         docs.append({
             "chunk_id": r["chunk_id"],
@@ -66,4 +81,9 @@ def hybrid_search(
             "score": r.get("@search.score", 0),
             "reranker_score": reranker_score,
         })
+
+    log.info(
+        "After threshold filter: %d件 (threshold=%.1f)",
+        len(docs), threshold,
+    )
     return docs
