@@ -122,15 +122,18 @@ print(raw)
 }
 
 # シノニムマップ（インデックスが参照するため先に作成）
+# ※ 日本語を含むため変数渡しだと文字化けする → ファイル経由で送信
 echo "  synonym map: jp-enterprise-synonyms..."
-SYNONYM_JSON=$(python3 -c "
-import json
+SYNONYM_TMP="${TEMP:-/tmp}/synonyms_out.json"
+python3 -c "
+import json, os
 with open('search/synonyms.json','r',encoding='utf-8') as f: data=json.load(f)
-print(json.dumps(data,ensure_ascii=False))
-")
+out = os.environ.get('TEMP', '/tmp') + '/synonyms_out.json'
+with open(out,'w',encoding='utf-8') as f: json.dump(data,f,ensure_ascii=False)
+"
 curl -sf -X PUT "${SEARCH_ENDPOINT}/synonymmaps/jp-enterprise-synonyms?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
-  -d "$SYNONYM_JSON" -o /dev/null
+  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json; charset=utf-8" \
+  --data-binary "@${SYNONYM_TMP}" -o /dev/null
 echo "  OK"
 
 # インデックス削除（HNSW パラメータ・アナライザー変更は既存インデックスに適用不可）
@@ -162,13 +165,19 @@ az search service update --resource-group "$RG" --name srch-sprag-poc-jpe --sema
 echo "  OK"
 
 echo ""
-echo "=== [8/11] インデクサー実行 ==="
+echo "=== [8/11] インデクサーリセット + 実行 ==="
+echo "  resetting indexers (force full reprocess)..."
+curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/reset?api-version=${API_VERSION}" \
+  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || true
+curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/reset?api-version=${API_VERSION}" \
+  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || true
+echo "  triggering indexers..."
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/run?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
 echo ""
-echo "  インデクサーを手動トリガーしました（primary + fallback）"
+echo "  インデクサーをリセット＋手動トリガーしました（primary + fallback）"
 
 echo ""
 echo "=== [9/11] FUNCTIONS_KEY 設定 ==="
