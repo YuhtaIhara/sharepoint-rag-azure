@@ -49,8 +49,7 @@
         "name": "sprag-semantic-config",
         "prioritizedFields": {
           "titleField": {"fieldName": "title"},
-          "prioritizedContentFields": [{"fieldName": "chunk"}],
-          "prioritizedKeywordFields": [{"fieldName": "category"}]
+          "prioritizedContentFields": [{"fieldName": "chunk"}]
         }
       }
     ]
