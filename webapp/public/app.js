@@ -95,9 +95,11 @@
         body: JSON.stringify({ message: text, session_id: sessionId }),
       });
 
-      // 認証切れ → EasyAuth ログインページにリダイレクト
-      if (res.status === 401 || res.status === 302) {
-        window.location.href = "/.auth/login/aad?post_login_redirect_uri=" + encodeURIComponent(window.location.pathname);
+      // 認証エラー → メッセージ表示（EasyAuth 無効時はリダイレクトしない）
+      if (res.status === 401) {
+        hideLoading();
+        addMessage("assistant", "認証エラー (401)。FUNCTIONS_KEY を確認してください。");
+        setDisabled(false);
         return;
       }
 
