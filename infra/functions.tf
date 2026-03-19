@@ -48,6 +48,9 @@ resource "azurerm_linux_function_app" "main" {
     "COSMOS_DB_CONTAINER"               = "conversations"
     "BLOB_CONTAINER_NAME"               = "sharepoint-documents"
 
+    # Search tuning
+    "RERANKER_THRESHOLD" = "0"
+
     # SP sync config
     "SP_SITE_HOSTNAME"    = var.sp_site_hostname
     "SP_SITE_PATH"        = var.sp_site_path

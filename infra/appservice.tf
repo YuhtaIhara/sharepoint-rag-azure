@@ -31,4 +31,10 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   tags = local.tags
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["FUNCTIONS_KEY"],
+    ]
+  }
 }

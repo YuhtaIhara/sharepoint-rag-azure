@@ -52,7 +52,7 @@ fi
 : "${SEARCH_ENDPOINT:?SEARCH_ENDPOINT is required (set in .env or environment)}"
 : "${SEARCH_API_KEY:?SEARCH_API_KEY is required (set in .env or environment)}"
 
-API_VERSION="2024-07-01"
+API_VERSION="2025-05-01-Preview"
 
 echo "  DI インデクサー実行..."
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=${API_VERSION}" \

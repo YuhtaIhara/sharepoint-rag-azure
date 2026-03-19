@@ -85,85 +85,109 @@ for res_id in \
 done
 
 echo ""
-echo "=== [5/8] Terraform apply ==="
+echo "=== [5/10] Terraform apply ==="
 terraform apply -auto-approve
 
 echo ""
-echo "=== [6/8] Search objects デプロイ ==="
+echo "=== [6/10] Search objects デプロイ ==="
 SEARCH_ENDPOINT=$(terraform output -raw search_endpoint)
 SEARCH_KEY=$(az search admin-key show --resource-group "$RG" --service-name srch-sprag-poc-jpe --query primaryKey -o tsv)
 OPENAI_ENDPOINT=$(terraform output -raw openai_endpoint)
 OPENAI_KEY=$(az cognitiveservices account keys list --resource-group "$RG" --name oai-sprag-poc-eastus2 --query key1 -o tsv)
+COG_KEY=$(az cognitiveservices account keys list --resource-group "$RG" --name cog-sprag-poc-jpe --query key1 -o tsv)
 
-API_VERSION="2024-07-01"
+API_VERSION="2025-05-01-Preview"
 cd "$ROOT_DIR"
 
-# Index
-echo "  index..."
-INDEX_JSON=$(python3 -c "
+deploy_search_object() {
+  local type="$1" name="$2" file="$3"
+  echo "  ${type}: ${name}..."
+  local JSON
+  JSON=$(python3 -c "
 import json
-with open('search/index.json','r',encoding='utf-8') as f: data=json.load(f)
+with open('${file}','r',encoding='utf-8') as f: data=json.load(f)
 raw=json.dumps(data,ensure_ascii=True)
 raw=raw.replace('\${AZURE_OPENAI_ENDPOINT}','$OPENAI_ENDPOINT')
 raw=raw.replace('\${AZURE_OPENAI_API_KEY}','$OPENAI_KEY')
-print(raw)
-")
-curl -sf -X PUT "${SEARCH_ENDPOINT}/indexes/sprag-index?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
-  -d "$INDEX_JSON" -o /dev/null
-echo "  OK"
-
-# Datasource
-echo "  datasource..."
-DS_JSON=$(python3 -c "
-import json
-with open('search/datasource.json','r',encoding='utf-8') as f: data=json.load(f)
-raw=json.dumps(data,ensure_ascii=True)
+raw=raw.replace('\${COGNITIVE_SERVICES_KEY}','$COG_KEY')
 raw=raw.replace('\${SUBSCRIPTION_ID}','$SUB')
 raw=raw.replace('\${RESOURCE_GROUP}','$RG')
 raw=raw.replace('\${STORAGE_ACCOUNT_NAME}','stspragpocjpe')
 print(raw)
 ")
-curl -sf -X PUT "${SEARCH_ENDPOINT}/datasources/sprag-datasource?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
-  -d "$DS_JSON" -o /dev/null
-echo "  OK"
+  curl -sf -X PUT "${SEARCH_ENDPOINT}/${type}/${name}?api-version=${API_VERSION}" \
+    -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
+    -d "$JSON" -o /dev/null
+  echo "  OK"
+}
 
-# Skillset
-echo "  skillset..."
-SKILL_JSON=$(python3 -c "
-import json,os
-with open('search/skillset.json','r',encoding='utf-8') as f: data=json.load(f)
-raw=json.dumps(data,ensure_ascii=True)
-raw=raw.replace('\${AZURE_OPENAI_ENDPOINT}','$OPENAI_ENDPOINT')
-raw=raw.replace('\${AZURE_OPENAI_API_KEY}','$OPENAI_KEY')
-print(raw)
-")
-curl -sf -X PUT "${SEARCH_ENDPOINT}/skillsets/sprag-skillset?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
-  -d "$SKILL_JSON" -o /dev/null
-echo "  OK"
+# Index
+deploy_search_object "indexes" "sprag-index" "search/index.json"
 
-# Indexer
-echo "  indexer..."
-curl -sf -X PUT "${SEARCH_ENDPOINT}/indexers/sprag-indexer?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" \
-  -d @search/indexer.json -o /dev/null
-echo "  OK"
+# Datasource
+deploy_search_object "datasources" "sprag-datasource" "search/datasource.json"
+
+# Primary skillset (DI Layout)
+deploy_search_object "skillsets" "sprag-skillset" "search/skillset.json"
+
+# Fallback skillset (SplitSkill for .doc/.csv)
+deploy_search_object "skillsets" "sprag-skillset-fallback" "search/skillset-fallback.json"
+
+# Primary indexer (DI Layout: .pdf, .docx, .xlsx, .pptx)
+deploy_search_object "indexers" "sprag-indexer" "search/indexer.json"
+
+# Fallback indexer (.doc, .csv)
+deploy_search_object "indexers" "sprag-indexer-fallback" "search/indexer-fallback.json"
 
 echo ""
-echo "=== [7/8] セマンティック検索有効化 ==="
+echo "=== [7/10] セマンティック検索有効化 ==="
 az search service update --resource-group "$RG" --name srch-sprag-poc-jpe --semantic-search free -o none 2>&1
 echo "  OK"
 
 echo ""
-echo "=== [8/8] インデクサー実行 ==="
+echo "=== [8/10] インデクサー実行 ==="
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" || echo "  (already running)"
+  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
+curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/run?api-version=${API_VERSION}" \
+  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
 echo ""
-echo "  インデクサーを手動トリガーしました"
+echo "  インデクサーを手動トリガーしました（primary + fallback）"
 
 echo ""
+echo "=== [9/10] FUNCTIONS_KEY 設定 ==="
+FUNC_NAME="func-${PROJECT:-sprag-poc}-ea"
+WEBAPP_NAME="app-${PROJECT:-sprag-poc}-ea"
+
+FUNCTIONS_KEY=$(az functionapp keys list \
+  --name "$FUNC_NAME" \
+  --resource-group "$RG" \
+  --query "functionKeys.default" -o tsv 2>/dev/null || echo "")
+
+if [ -n "$FUNCTIONS_KEY" ]; then
+  az webapp config appsettings set \
+    --name "$WEBAPP_NAME" \
+    --resource-group "$RG" \
+    --settings "FUNCTIONS_KEY=$FUNCTIONS_KEY" \
+    -o none
+  echo "  FUNCTIONS_KEY set on $WEBAPP_NAME"
+else
+  echo "  WARNING: FUNCTIONS_KEY を取得できませんでした"
+  echo "  CI/CD デプロイ後に以下を実行:"
+  echo "    FKEY=\$(az functionapp keys list --name $FUNC_NAME -g $RG --query 'functionKeys.default' -o tsv)"
+  echo "    az webapp config appsettings set --name $WEBAPP_NAME -g $RG --settings \"FUNCTIONS_KEY=\$FKEY\""
+fi
+
+echo ""
+echo "=== [10/10] デプロイ状態確認 ==="
+echo "  Primary indexer status:"
+curl -sf "${SEARCH_ENDPOINT}/indexers/sprag-indexer/status?api-version=${API_VERSION}" \
+  -H "api-key: ${SEARCH_KEY}" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'    status={d[\"status\"]}, lastResult={d.get(\"lastResult\",{}).get(\"status\",\"none\")}')"
+echo ""
+
 echo "=== rebuild 完了 ==="
-echo "インデクサーがバックグラウンドで実行中。完了後に検証してください。"
-echo "検証: https://app-sprag-poc-ea.azurewebsites.net"
+echo "インデクサーがバックグラウンドで実行中（DI Layout: ~20-30分）"
+echo ""
+echo "次のステップ:"
+echo "  1. gh workflow run 'Deploy Functions' --repo YuhtaIhara/sharepoint-rag-azure"
+echo "  2. gh workflow run 'Deploy Webapp' --repo YuhtaIhara/sharepoint-rag-azure"
+echo "  3. https://app-sprag-poc-ea.azurewebsites.net で動作確認"
