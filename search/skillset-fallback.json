@@ -34,6 +34,11 @@
       ]
     }
   ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "key": "${COGNITIVE_SERVICES_KEY}",
+    "description": "Multi-service Cognitive Services for fallback embedding billing"
+  },
   "indexProjections": {
     "selectors": [
       {

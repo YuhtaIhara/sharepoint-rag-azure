@@ -201,7 +201,7 @@ wait_indexer() {
   while [ $elapsed -lt $max_wait ]; do
     STATUS=$(curl -sf "${SEARCH_ENDPOINT}/indexers/${name}/status?api-version=${API_VERSION}" \
       -H "api-key: ${SEARCH_KEY}" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('lastResult',{}).get('status','unknown'))" 2>/dev/null || echo "unknown")
-    if [ "$STATUS" = "success" ] || [ "$STATUS" = "transientFailure" ]; then
+    if [ "$STATUS" = "success" ]; then
       echo "  $name: $STATUS (${elapsed}s)"
       return 0
     fi
