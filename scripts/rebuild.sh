@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# rebuild.sh — teardown 後のフル再構築を一発で実行
+# rebuild.sh — teardown 後のフル再構築 or 差分再インデックス
 #
 # 前提:
 #   - teardown.sh 済み（Storage + Entra ID App のみ残存）
 #   - az login 済み
 #   - terraform.tfvars が設定済み
 #
-# Usage: bash scripts/rebuild.sh
+# Usage:
+#   bash scripts/rebuild.sh                    # 差分再インデックス（変更検知により変更分のみ処理）
+#   FORCE_REINDEX=true bash scripts/rebuild.sh # フルリビルド（インデックス削除→全件再処理）
 
 set -euo pipefail
 
@@ -15,12 +17,20 @@ ROOT_DIR="$SCRIPT_DIR/.."
 INFRA_DIR="$ROOT_DIR/infra"
 SEARCH_DIR="$ROOT_DIR/search"
 
-SUB="REDACTED_SUBSCRIPTION_ID"
+SUB=$(az account show --query id -o tsv)
 RG="rg-sprag-poc-jpe"
+FORCE_REINDEX="${FORCE_REINDEX:-false}"
 
-echo "=== [1/8] Cognitive Services 論理削除からの復元 ==="
+if [ "$FORCE_REINDEX" = "true" ]; then
+  echo "*** FORCE_REINDEX=true: フルリビルド（インデックス削除→全件再処理）***"
+else
+  echo "*** 差分再インデックス（変更があったドキュメントのみ処理）***"
+fi
+echo ""
+
+echo "=== [1/13] Cognitive Services 論理削除からの復元 ==="
 echo "  (purge 権限がないため restore:true で復元)"
-for name_loc_kind in "cog-sprag-poc-jpe:japaneast:CognitiveServices" "di-sprag-poc-jpe:japaneast:FormRecognizer" "oai-sprag-poc-eastus2:eastus2:OpenAI"; do
+for name_loc_kind in "cog-sprag-poc-jpe:japaneast:CognitiveServices" "oai-sprag-poc-eastus2:eastus2:OpenAI"; do
   name="${name_loc_kind%%:*}"
   rest="${name_loc_kind#*:}"
   loc="${rest%%:*}"
@@ -40,7 +50,7 @@ for name_loc_kind in "cog-sprag-poc-jpe:japaneast:CognitiveServices" "di-sprag-p
 done
 
 echo ""
-echo "=== [2/8] KV secrets 論理削除の purge ==="
+echo "=== [2/13] KV secrets 論理削除の purge ==="
 # KV が存在する場合のみ
 if az keyvault show --name kv-sprag-poc-jpe --resource-group "$RG" > /dev/null 2>&1; then
   for secret in AZURE-OPENAI-KEY AZURE-OPENAI-ENDPOINT SEARCH-API-KEY SEARCH-ENDPOINT COSMOS-CONNECTION-STRING STORAGE-CONNECTION-STRING GRAPH-CLIENT-ID GRAPH-CLIENT-SECRET GRAPH-TENANT-ID; do
@@ -53,16 +63,15 @@ else
 fi
 
 echo ""
-echo "=== [3/8] Terraform init ==="
+echo "=== [3/13] Terraform init ==="
 cd "$INFRA_DIR"
 terraform init -input=false
 
 echo ""
-echo "=== [4/8] Terraform state cleanup + import ==="
+echo "=== [4/13] Terraform state cleanup + import ==="
 # 復元した Cognitive Services を import（state になければ）
 for res_id in \
   "azurerm_cognitive_account.cognitive:/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/cog-sprag-poc-jpe" \
-  "azurerm_cognitive_account.di:/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/di-sprag-poc-jpe" \
   "azurerm_cognitive_account.openai:/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/oai-sprag-poc-eastus2"; do
   res="${res_id%%:*}"
   id="${res_id#*:}"
@@ -85,11 +94,11 @@ for res_id in \
 done
 
 echo ""
-echo "=== [5/11] Terraform apply ==="
+echo "=== [5/13] Terraform apply ==="
 terraform apply -auto-approve
 
 echo ""
-echo "=== [6/11] Search objects デプロイ ==="
+echo "=== [6/13] Search objects デプロイ ==="
 SEARCH_ENDPOINT=$(terraform output -raw search_endpoint)
 SEARCH_KEY=$(az search admin-key show --resource-group "$RG" --service-name srch-sprag-poc-jpe --query primaryKey -o tsv)
 OPENAI_ENDPOINT=$(terraform output -raw openai_endpoint)
@@ -136,10 +145,13 @@ curl -sf -X PUT "${SEARCH_ENDPOINT}/synonymmaps/jp-enterprise-synonyms?api-versi
   --data-binary "@${SYNONYM_TMP}" -o /dev/null
 echo "  OK"
 
-# インデックス削除（HNSW パラメータ・アナライザー変更は既存インデックスに適用不可）
-echo "  Deleting existing index for clean recreation..."
-curl -sf -X DELETE "${SEARCH_ENDPOINT}/indexes/sprag-index?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -o /dev/null 2>/dev/null || echo "  (index not found, skip)"
+if [ "$FORCE_REINDEX" = "true" ]; then
+  echo "  Deleting existing index for clean recreation..."
+  curl -sf -X DELETE "${SEARCH_ENDPOINT}/indexes/sprag-index?api-version=${API_VERSION}" \
+    -H "api-key: ${SEARCH_KEY}" -o /dev/null 2>/dev/null || echo "  (index not found, skip)"
+else
+  echo "  Incremental mode: index DELETE をスキップ"
+fi
 
 # Index
 deploy_search_object "indexes" "sprag-index" "search/index.json"
@@ -160,27 +172,58 @@ deploy_search_object "indexers" "sprag-indexer" "search/indexer.json"
 deploy_search_object "indexers" "sprag-indexer-fallback" "search/indexer-fallback.json"
 
 echo ""
-echo "=== [7/11] セマンティック検索有効化 ==="
+echo "=== [7/13] セマンティック検索有効化 ==="
 az search service update --resource-group "$RG" --name srch-sprag-poc-jpe --semantic-search free -o none 2>&1
 echo "  OK"
 
 echo ""
-echo "=== [8/11] インデクサーリセット + 実行 ==="
-echo "  resetting indexers (force full reprocess)..."
-curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/reset?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || true
-curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/reset?api-version=${API_VERSION}" \
-  -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || true
+echo "=== [8/13] インデクサーリセット + 実行 ==="
+if [ "$FORCE_REINDEX" = "true" ]; then
+  echo "  resetting indexers (force full reprocess)..."
+  curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/reset?api-version=${API_VERSION}" \
+    -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || true
+  curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/reset?api-version=${API_VERSION}" \
+    -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || true
+else
+  echo "  Incremental mode: indexer reset をスキップ（変更検知で差分処理）"
+fi
 echo "  triggering indexers..."
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
 curl -sf -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer-fallback/run?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" -H "Content-Type: application/json" -H "Content-Length: 0" || echo "  (already running)"
-echo ""
-echo "  インデクサーをリセット＋手動トリガーしました（primary + fallback）"
 
 echo ""
-echo "=== [9/11] FUNCTIONS_KEY 設定 ==="
+echo "=== [9/13] インデクサー完了待ち ==="
+wait_indexer() {
+  local name="$1" max_wait=1800 elapsed=0
+  echo "  waiting for $name..."
+  while [ $elapsed -lt $max_wait ]; do
+    STATUS=$(curl -sf "${SEARCH_ENDPOINT}/indexers/${name}/status?api-version=${API_VERSION}" \
+      -H "api-key: ${SEARCH_KEY}" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('lastResult',{}).get('status','unknown'))" 2>/dev/null || echo "unknown")
+    if [ "$STATUS" = "success" ] || [ "$STATUS" = "transientFailure" ]; then
+      echo "  $name: $STATUS (${elapsed}s)"
+      return 0
+    fi
+    sleep 15
+    elapsed=$((elapsed + 15))
+    echo "  $name: running... (${elapsed}s)"
+  done
+  echo "  WARNING: $name がタイムアウト（${max_wait}s）"
+  return 1
+}
+wait_indexer "sprag-indexer"
+wait_indexer "sprag-indexer-fallback"
+
+echo ""
+echo "=== [10/13] ACL メタデータ同期 ==="
+echo "  Blob → Index のメタデータ同期（allowed_groups, category, source_url）..."
+cd "$ROOT_DIR"
+python3 scripts/update_index_metadata.py
+echo "  OK"
+
+echo ""
+echo "=== [11/13] FUNCTIONS_KEY 設定 ==="
 FUNC_NAME="func-${PROJECT:-sprag-poc}-ea"
 WEBAPP_NAME="app-${PROJECT:-sprag-poc}-ea"
 
@@ -204,9 +247,9 @@ else
 fi
 
 echo ""
-echo "=== [10/11] EasyAuth v2 設定 ==="
+echo "=== [12/13] EasyAuth v2 設定 ==="
 WEBAPP_NAME="app-${PROJECT:-sprag-poc}-ea"
-ENTRA_CLIENT_ID="REDACTED_CLIENT_ID"
+ENTRA_CLIENT_ID=$(az keyvault secret show --vault-name kv-sprag-poc-jpe --name GRAPH-CLIENT-ID --query value -o tsv 2>/dev/null || echo "")
 TENANT_ID=$(az account show --query tenantId -o tsv 2>/dev/null)
 CLIENT_SECRET=$(az keyvault secret show --vault-name kv-sprag-poc-jpe --name GRAPH-CLIENT-SECRET --query value -o tsv 2>/dev/null || echo "")
 
@@ -229,7 +272,7 @@ else
 fi
 
 echo ""
-echo "=== [11/11] デプロイ状態確認 ==="
+echo "=== [13/13] デプロイ状態確認 ==="
 echo "  Primary indexer status:"
 curl -sf "${SEARCH_ENDPOINT}/indexers/sprag-indexer/status?api-version=${API_VERSION}" \
   -H "api-key: ${SEARCH_KEY}" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'    status={d[\"status\"]}, lastResult={d.get(\"lastResult\",{}).get(\"status\",\"none\")}')"

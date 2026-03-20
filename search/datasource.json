@@ -7,6 +7,11 @@
   "container": {
     "name": "sharepoint-documents"
   },
-  "dataDeletionDetectionPolicy": null,
-  "dataChangeDetectionPolicy": null
+  "dataDeletionDetectionPolicy": {
+    "@odata.type": "#Microsoft.Azure.Search.NativeBlobSoftDeleteDeletionDetectionPolicy"
+  },
+  "dataChangeDetectionPolicy": {
+    "@odata.type": "#Microsoft.Azure.Search.HighWaterMarkChangeDetectionPolicy",
+    "highWaterMarkColumnName": "metadata_storage_last_modified"
+  }
 }

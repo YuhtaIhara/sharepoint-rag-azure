@@ -4,13 +4,8 @@
 
 | 版数 | 日付 | 変更者 | 変更内容 |
 |------|------|--------|----------|
-| 0.1 | 2026-03-14 | 構築担当者 | 初版ドラフト作成 |
-| 0.2 | 2026-03-14 | 構築担当者 | CAF 命名規則準拠・タギング戦略追加・SKU 選定理由追加（ベストプラクティス調査に基づく構成改善） |
-| 0.3 | 2026-03-14 | 構築担当者 | Azure Pricing Calculator エビデンスリンク追加 |
-| 0.4 | 2026-03-15 | 構築担当者 | リージョンを Japan East に変更。命名規則を jpe に統一。LLM を GPT-4o-mini に変更 |
-| 0.5 | 2026-03-18 | 構築担当者 | リージョン差異反映（OpenAI→East US 2、App Service→East Asia）。RBAC #10 設定済に更新 |
-| 0.6 | 2026-03-18 | 構築担当者 | Functions ホスト名を実績値に更新（新 Azure 命名形式） |
 | 0.7 | 2026-03-18 | 構築担当者 | 命名規則テーブル更新（OpenAI→eastus2、App Service→East Asia 注記追加）。DI 未使用注記追加。コスト試算 DI $0 反映 |
+| 0.8 | 2026-03-20 | 構築担当者 | コスト最適化反映: Basic SKU, 変更検知, DI standalone 削除 |
 
 ---
 
@@ -39,7 +34,7 @@
 | 0 | Resource Group | `rg` | `rg-sprag-poc-jpe` | — |
 | 1 | Entra ID アプリ | — | `app-sprag-poc` | — |
 | 2 | Azure OpenAI | `oai` | `oai-sprag-poc-eastus2` | 英数字・ハイフン。※JE 非対応のため East US 2 に作成。命名規則のリージョン部が `eastus2` に変更 |
-| 3 | Document Intelligence | `di` | `di-sprag-poc-jpe` | 英数字・ハイフン。構築済みだが現在のスキルセットでは未使用 |
+| 3 | ~~Document Intelligence~~ | ~~`di`~~ | ~~`di-sprag-poc-jpe`~~ | **削除済み**。DI Layout は Cognitive Services マルチサービスアカウント経由で利用 |
 | 4 | Storage Account | `st` | `stspragpocjpe` | 小文字+数字のみ、3-24文字、グローバル一意 |
 | 5 | AI Search | `srch` | `srch-sprag-poc-jpe` | 小文字+数字+ハイフン、グローバル一意 |
 | 6 | Cosmos DB | `cosmos` | `cosmos-sprag-poc-jpe` | 小文字+数字+ハイフン、グローバル一意 |
@@ -74,9 +69,9 @@
 | 0 | `rg-sprag-poc-jpe` | Resource Group | — | Japan East / サブスクリプション: Azure サブスクリプション 1 (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) | 全リソースの入れ物 | — | — |
 | 1 | `app-sprag-poc` | Entra ID アプリ登録 | — | シングルテナント / Sites.Read.All, Files.Read.All / シークレット6ヶ月 | Graph API 認証 | — | — |
 | 2 | `oai-sprag-poc-eastus2` | Azure AI Foundry (OpenAI) | S0 | GPT-4o-mini: 30K TPM / text-embedding-3-large: 120K TPM / **East US 2** | 回答生成 + 埋め込み | JE 非対応のため East US 2 | — |
-| 3 | `di-sprag-poc-jpe` | Document Intelligence | S0 | — | PDF/Office 構造抽出 | Free は月500ページ制限。S0 で従量課金。構築済み。現在のスキルセットでは未使用（SplitSkill を採用）。精度向上時に活用予定 | — |
+| 3 | ~~`di-sprag-poc-jpe`~~ | ~~Document Intelligence~~ | ~~S0~~ | — | ~~PDF/Office 構造抽出~~ | **削除済み**。スキルセットの DI Layout は Cognitive Services マルチサービスアカウント (`cog-sprag-poc-jpe`) 経由で利用。standalone DI リソースは未使用のため削除 | — |
 | 4 | `stspragpocjpe` | Storage Account | Standard LRS | コンテナ: `sharepoint-documents` / パブリックアクセス無効 / 論理削除有効 | SP 文書格納 | PoC は冗長性不要。LRS が最安 | — |
-| 5 | `srch-sprag-poc-jpe` | AI Search | **S1** | レプリカ: 1 / パーティション: 1 / セマンティックランカー: Free / マネージド ID: ON | 検索エンジン | ベクトル検索は S1 以上必須。Basic 不可 | #2, #3, #4 |
+| 5 | `srch-sprag-poc-jpe` | AI Search | **Basic** | レプリカ: 1 / パーティション: 1 / セマンティックランカー: Free / マネージド ID: ON | 検索エンジン | Basic はベクトル検索 (HNSW)・セマンティックランカー・SynonymMaps・IndexProjections に対応。PoC は 1 インデックス・2 インデクサー・約275ドキュメントで Basic 上限（15 インデックス・5 インデクサー・2GB）内に十分収まる | #2, #3, #4 |
 | 6 | `cosmos-sprag-poc-jpe` | Cosmos DB | サーバーレス (NoSQL) | DB: `ChatDB` / コンテナ: `conversations` / PK: `/sessionId` | 会話履歴 | 低頻度アクセスのためサーバーレスが最安 | — |
 | 7 | `kv-sprag-poc-jpe` | Key Vault | Standard | RBAC / シークレット9個 | シークレット管理 | Standard で十分（Premium は HSM 用） | 全リソース |
 | 8 | `appi-sprag-poc-jpe` | Application Insights | ワークスペースベース | 日次上限設定推奨 | 監視 | 従量課金のみ | — |
@@ -130,29 +125,29 @@
 
 | # | リソース | SKU | 課金種別 | 月額（USD） | 備考 |
 |---|---------|-----|---------|------------|------|
-| 1 | **AI Search** | S1 | 固定 | **$245.28** | 最大コスト。1 SU（1レプリカ×1パーティション） |
+| 1 | **AI Search** | Basic | 固定 | **約 $75** | 1 SU（1レプリカ×1パーティション）。約 ¥340/日 |
 | 2 | **App Service** | B1 Linux | 固定 | **$12.41** | 常時起動の最小プラン |
 | 3 | **Azure OpenAI (GPT-4o-mini)** | Standard | 従量 | **〜$1** | 入力$0.15/1M tokens, 出力$0.60/1M tokens。PoC利用では微少 |
 | 4 | **Azure OpenAI (embedding)** | Standard | 従量 | **〜$1** | $0.13/1M tokens。100件インデックス構築+クエリ |
-| 5 | **Document Intelligence** | S0 | 従量 | **$0** | 構築済みだが現在未使用（SplitSkill を採用）。従量課金のため使用しなければ $0。活用時は Layout: $10/1,000ページ |
+| 5 | **DI Layout** | — | 従量 | **$0** | 変更検知により定常運用では変更ドキュメントのみ処理。初回インデックス構築以降はほぼ $0 |
 | 6 | **Cosmos DB** | サーバーレス | 従量 | **〜$1** | $0.25/1M RU + $0.25/GB。PoC利用では微少 |
 | 7 | **Functions** | 従量課金 | 従量 | **$0** | 無料枠内（月100万回実行 + 400,000 GB-s） |
 | 8 | **Blob Storage** | Standard LRS | 従量 | **〜$0.01** | $0.0184/GB。100件で数十MB程度 |
 | 9 | **Key Vault** | Standard | 従量 | **〜$0.01** | $0.03/10,000操作 |
 | 10 | **Application Insights** | — | 従量 | **$0** | 無料枠 5GB/月内 |
-| | | | **合計** | **約 $260/月** | |
-| | | | **参考: 日本円** | **約 39,000円/月** | |
+| | | | **合計** | **約 $90/月** | |
+| | | | **参考: 日本円** | **約 ¥13,500〜17,000/月** | |
 
 ### PoC 期間中の想定コスト
 
 | 期間 | 想定コスト |
 |------|-----------|
-| 3日 | 約 $26（AI Search の日割り $24 + 従量課金 $2） |
-| 1週間 | 約 $61 |
-| 2週間 | 約 $121 |
-| 1ヶ月 | 約 $260 |
+| 3日 | 約 $9（AI Search Basic の日割り $7.5 + 従量課金 $2） |
+| 1週間 | 約 $19 |
+| 2週間 | 約 $38 |
+| 1ヶ月 | 約 $90 |
 
-> AI Search S1 は時間課金（$0.336/時）。PoC 終了後にリソース削除で課金停止。
+> AI Search Basic は時間課金（約 $0.101/時、約 ¥340/日）。PoC 終了後にリソース削除で課金停止。
 >
 > 上記の金額は 2026年3月時点の [Azure Pricing Calculator](https://azure.microsoft.com/ja-jp/pricing/calculator/) に基づく。最新価格は Calculator で確認のこと。
 

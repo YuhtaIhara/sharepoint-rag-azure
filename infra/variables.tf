@@ -62,3 +62,8 @@ variable "sp_document_library" {
   type        = string
   default     = "Shared Documents"
 }
+
+variable "alert_email" {
+  description = "Email address for budget alert notifications"
+  type        = string
+}

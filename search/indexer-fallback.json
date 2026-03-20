@@ -3,7 +3,7 @@
   "dataSourceName": "sprag-datasource",
   "targetIndexName": "sprag-index",
   "skillsetName": "sprag-skillset-fallback",
-  "schedule": { "interval": "PT1H" },
+  "schedule": { "interval": "PT24H" },
   "parameters": {
     "maxFailedItems": -1,
     "maxFailedItemsPerBatch": -1,

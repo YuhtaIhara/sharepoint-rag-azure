@@ -1,0 +1,83 @@
+[
+  {
+    "id": "Q-001",
+    "question": "事業計画の概要を教えて",
+    "expected_category": "01_経営",
+    "expected_keywords": ["事業計画"],
+    "user_groups": ["*"],
+    "description": "経営文書から事業計画の内容が正しく返るか"
+  },
+  {
+    "id": "Q-002",
+    "question": "女性活躍推進法の行動計画は？",
+    "expected_category": "01_経営",
+    "expected_keywords": ["女性活躍", "行動計画"],
+    "user_groups": ["*"],
+    "description": "経営文書から女性活躍推進法の情報が返るか"
+  },
+  {
+    "id": "Q-003",
+    "question": "就業規則の内容は？",
+    "expected_category": "02_人事労務",
+    "expected_keywords": ["就業規則"],
+    "user_groups": ["*"],
+    "description": "人事労務から就業規則が返るか"
+  },
+  {
+    "id": "Q-004",
+    "question": "情報セキュリティ基本方針は？",
+    "expected_category": "02_人事労務",
+    "expected_keywords": ["情報セキュリティ", "基本方針"],
+    "user_groups": ["*"],
+    "description": "人事労務からセキュリティ方針が返るか"
+  },
+  {
+    "id": "Q-005",
+    "question": "借上社宅規定の条件は？",
+    "expected_category": "02_人事労務",
+    "expected_keywords": ["借上社宅", "規定"],
+    "user_groups": ["*"],
+    "description": "人事労務から社宅規定が返るか"
+  },
+  {
+    "id": "Q-006",
+    "question": "A社 との基本契約の内容は？",
+    "expected_category": "03_営業",
+    "expected_keywords": ["基本契約"],
+    "user_groups": ["*"],
+    "description": "営業文書から契約内容が返るか"
+  },
+  {
+    "id": "Q-007",
+    "question": "スキルシートのフォーマットは？",
+    "expected_category": "03_営業",
+    "expected_keywords": ["スキルシート"],
+    "user_groups": ["*"],
+    "description": "営業文書からスキルシート情報が返るか"
+  },
+  {
+    "id": "Q-008",
+    "question": "自社 の規定や契約をまとめて",
+    "expected_category": null,
+    "expected_keywords": ["規定", "契約"],
+    "user_groups": ["*"],
+    "description": "複数フォルダにまたがるクロスフォルダ検索"
+  },
+  {
+    "id": "Q-009",
+    "question": "海外拠点の一覧は？",
+    "expected_category": null,
+    "expected_keywords": [],
+    "user_groups": ["*"],
+    "description": "存在しない情報でハルシネーションしないこと",
+    "expect_no_answer": true
+  },
+  {
+    "id": "Q-010",
+    "question": "B社 との業務委託契約の期間は？",
+    "expected_category": "03_営業",
+    "expected_keywords": ["業務委託", "契約"],
+    "user_groups": ["*"],
+    "description": "サブフォルダ深層の文書から返るか"
+  }
+]

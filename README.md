@@ -32,7 +32,7 @@ Azure AI Search + Azure OpenAI を基盤とし、**SharePoint のフォルダ単
 |-------------|---------|-----|
 | LLM | Azure OpenAI | GPT-4o-mini |
 | Embedding | Azure OpenAI | text-embedding-3-large (3072 dim) |
-| 検索 | Azure AI Search | Standard S1 |
+| 検索 | Azure AI Search | Basic |
 | ストレージ | Blob Storage | StorageV2 LRS |
 | データベース | Cosmos DB | Serverless |
 | 認証 | Entra ID | SSO (MSAL) |
@@ -113,19 +113,19 @@ sharepoint-rag-azure/
 
 ### 文書の追加・更新
 
+インデクサーは変更検知 (HighWaterMark) + 削除検知 (NativeBlobSoftDelete) で日次自動実行 (PT24H) されるため、定常運用では手動操作は不要。
+
+**即時反映が必要な場合:**
+
 ```bash
-# 1. SP → Blob 同期
-cd scripts && python sp_to_blob.py
+# 増分リビルド（変更分のみ処理）
+bash scripts/rebuild.sh
 
-# 2. AI Search インデクサー実行（API or ポータル）
-curl -X POST "${SEARCH_ENDPOINT}/indexers/sprag-indexer/run?api-version=2024-07-01" \
-  -H "api-key: ${SEARCH_API_KEY}"
-
-# 3. ACL メタデータ更新（必須）
-python update_index_metadata.py
+# フルリビルド（インデックス削除→全件再処理）
+FORCE_REINDEX=true bash scripts/rebuild.sh
 ```
 
-> **重要**: インデクサー再実行後は必ず `update_index_metadata.py` を実行すること。スキルセットの制約により `allowed_groups` は自動的にはインデックスに反映されない。
+> `rebuild.sh` はインデクサー完了後に `update_index_metadata.py` を自動実行するため、ACL の手動同期は不要。
 
 ### 既知の制限事項
 
@@ -141,12 +141,13 @@ python update_index_metadata.py
 
 | リソース | 月額概算 |
 |---------|---------|
-| AI Search S1 | ~$245 |
+| AI Search Basic | ~$75（約 ¥340/日） |
 | App Service B1 | ~$13 |
 | Azure OpenAI | ~$2（従量課金） |
+| DI Layout | ~$0（変更検知により定常運用はほぼ $0） |
 | Cosmos DB Serverless | ~$1 |
 | その他 | ~$1 |
-| **合計** | **~$262/月** |
+| **合計** | **~$90/月（約 ¥13,500〜17,000）** |
 
 ## ライセンス
 

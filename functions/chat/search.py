@@ -65,13 +65,14 @@ def hybrid_search(
     # --- 観測ログ: フィルタ前の全結果を記録 ---
     all_results = list(results)
     log.info("Raw search results: %d件 (query=%s)", len(all_results), query)
-    for i, r in enumerate(all_results):
-        score = r.get("@search.rerankerScore")
-        search_score = r.get("@search.score")
-        log.info(
-            "  [%d] reranker=%s search=%s title=%s",
-            i, score, search_score, r.get("title", ""),
-        )
+    if os.environ.get("DEBUG", "").lower() == "true":
+        for i, r in enumerate(all_results):
+            score = r.get("@search.rerankerScore")
+            search_score = r.get("@search.score")
+            log.info(
+                "  [%d] reranker=%s search=%s title=%s",
+                i, score, search_score, r.get("title", ""),
+            )
 
     # --- 閾値フィルタ (環境変数で調整可能) ---
     threshold = float(os.environ.get("RERANKER_THRESHOLD", "1.0"))
