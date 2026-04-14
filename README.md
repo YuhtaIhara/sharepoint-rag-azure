@@ -1,5 +1,14 @@
 # SharePoint RAG Azure
 
+> [!warning] **このリポジトリは 2026-04-14 に archive されました**
+>
+> 本構成 (Azure AI Search + Azure OpenAI + Functions + Cosmos DB) は PoC 完了後 teardown され、
+> 現在は後継の [sharepoint-rag-lite](https://github.com/YuhtaIhara/sharepoint-rag-lite) (Supabase pgvector + Container Apps)
+> に移行済み。月額コストは ¥5,161 → ¥133 に約 97% 削減。
+>
+> 本リポジトリのコードと設計書は **reference / アーキテクチャ学習用途** として残置。
+> 新規導入は sharepoint-rag-lite を参照のこと。
+
 [![Azure](https://img.shields.io/badge/Azure-AI%20Search%20%2B%20OpenAI-0078D4?logo=microsoftazure)](https://azure.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
